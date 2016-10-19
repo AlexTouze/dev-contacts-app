@@ -13,8 +13,7 @@ router.post('/adduser', function (req, res, next) {
   
   debug("User -->", req.body);
 
-  db.collection('restaurants').insertOne(req.body, function (err, result) {
-    debug("err -->", err);
+  db.collection('restaurants').insert(req.body, function (err, result) {
     res.send(
       (err === null) ? { msg: '' } : { msg: err }
     );
