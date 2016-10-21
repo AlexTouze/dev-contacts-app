@@ -2,9 +2,13 @@
 
 
 function addContact() {
+   
+   var age = $("#fname").val();
    var newUser = {
-       'name': 'José',
-       'age' :'25'
+       'firstname': $('#fname').val(),
+       'lasename': age,
+       'guid': age,
+       'age' :age
    }
    
     $.ajax({
