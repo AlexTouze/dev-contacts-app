@@ -2,23 +2,42 @@ var express = require('express');
 var router = express.Router();
 var debug = require('debug')('users');
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
+/*
+ * GET userlist.
+ */
+router.get('/getcontactlist', function (req, res, next) {
+  var db = req.db;
+  var collection = db.get('contactlist');
+   collection.find({},{},function(e,docs){
+        res.json(docs);
+    });
 });
 
-
-router.post('/adduser', function (req, res, next) {
+/*
+ * POST to adduser.
+ */
+router.post('/addcontact', function (req, res, next) {
   var db = req.db;
-  
-  debug("User -->", req.body);
-
-  db.collection('restaurants').insert(req.body, function (err, result) {
+  db.collection('contactlist').insert(req.body, function (err, result) {
     res.send(
       (err === null) ? { msg: '' } : { msg: err }
     );
   });
 });
+
+/*
+ * DELETE to deleteuser.
+ */
+router.delete('/removecontact/:id', function(req, res) {
+    var db = req.db;
+    var collection = db.get('contactlist');
+    var userToDelete = req.params.id;
+    collection.remove({ '_id' : userToDelete }, function(err) {
+        res.send((err === null) ? { msg: '' } : { msg:'error: ' + err });
+    });
+});
+
+
 
 
 module.exports = router;

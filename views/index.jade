@@ -1,20 +1,37 @@
-extends ../node_modules/jade-bootstrap/_bootstrap
+extends ../node_modules/jade-bootstrap/layouts/bootswatch
 
 append body
-	.container-fluid
+	.container
 		h1= title
 		p Welcome to #{title}
-				div
-				input(type="text", placeholder="your firstname" id="fname")
-				input(type="text", placeholder="your lastname" id="lname")
-				input(type="text", placeholder="your age" id="age")
-				input(type="text", placeholder="your guid" id="guid")
-				button(onclick="addContact()" class="btn btn-default") addContact
-
-				div
 				
-				button(onclick="getAllContacts()" class="btn btn-default") getallContacts
+				h2 Add User
+				#addUser
+					fieldset
+						input(type="text", placeholder="your firstname" id="fname")
+						input(type="text", placeholder="your lastname" id="lname")
+						input(type="text", placeholder="your age" id="age")
+						input(type="text", placeholder="your email" id="mail")
+						input(type="text", placeholder="your guid" id="guid")
+						button(onclick="addContact()" class="btn btn-default") addContact
 
-				div
-				
-				button(onclick="removeContact()" class="btn btn-default") removeContact
+				h2 Current contact info
+					span Name	
+					span(id='CurrentName')
+					span Age
+					span(id='CurrentAge')
+					span Guid
+					span(id='CurrentGuid')
+
+				h2 User List
+				#userList
+					table(class="table table-striped")
+						thead
+							tr
+								th UserName
+								th Email
+								th Guid
+								th Age
+								th Delete?
+						tbody
+				//USER LIST
