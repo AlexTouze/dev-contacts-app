@@ -18,6 +18,7 @@ $(document).ready(function () {
 
 function addContact(event) {
     var emptyInout = 0;
+    var exist = false;
 
     $('#addUser input').each(function (index, val) {
         if ($(this).val() === '') { emptyInout++; }
@@ -31,27 +32,37 @@ function addContact(event) {
         'mail': $("#inputEmail").val()
     }
 
+     $.each(contactsList, function(){
+        if(this.guid === newUser.guid) exist = true 
+    });
+
+
     // Check and make sure errorCount's still at zero
     if (emptyInout === 0) {
-        $.ajax({
-            type: 'POST',
-            data: newUser,
-            url: '/users/addcontact',
-            dataType: 'JSON'
-        }).done(function (response) {
+        if(!exist) {
+            $.ajax({
+                type: 'POST',
+                data: newUser,
+                url: '/users/addcontact',
+                dataType: 'JSON'
+            }).done(function (response) {
 
-            // Check for successful (blank) response
-            if (response.msg === '') {
-                // Clear the form inputs
-                $('#addUser fieldset input').val('');
+                // Check for successful (blank) response
+                if (response.msg === '') {
+                    // Clear the form inputs
+                    $('#addUser fieldset input').val('');
 
-                getContactList();
-            }
-            else {
-                // If something goes wrong, alert the error message that our service returned
-                alert('Error: ' + response.msg);
-            }
-        });
+                    getContactList();
+                }
+                else {
+                    // If something goes wrong, alert the error message that our service returned
+                    alert('Error: ' + response.msg);
+                }
+            });
+        }
+        else {
+             alert('Error:  Guid already exists');
+        }
     }
 }
 
