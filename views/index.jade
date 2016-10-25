@@ -1,29 +1,51 @@
-extends ../node_modules/jade-bootstrap/layouts/bootswatch
-
+extends ../node_modules/jade-bootstrap/_bootstrap
+append script
+	script(src='/javascripts/contact.js')
+append styles
+	// Bootstrap theme
+	+bootswatch("cerulean")
+	// Custom styles for this template
+	link(href='../css/theme.css', rel='stylesheet')
 append body
 	.container
-		h1= title
-		p Welcome to #{title}
-				
-				h2 Add User
-				#addUser
-					fieldset
-						input(type="text", placeholder="your firstname" id="fname")
-						input(type="text", placeholder="your lastname" id="lname")
-						input(type="text", placeholder="your age" id="age")
-						input(type="text", placeholder="your email" id="mail")
-						input(type="text", placeholder="your guid" id="guid")
-						button(onclick="addContact()" class="btn btn-default") addContact
-
-				h2 Current contact info
-					span Name	
-					span(id='CurrentName')
-					span Age
-					span(id='CurrentAge')
-					span Guid
-					span(id='CurrentGuid')
-
-				h2 User List
+		.page-header
+		h1 Contact App
+		.row 
+			.col-sm-4
+				h2 Current Contact
+				ul.list-group
+					li.list-group-item 
+						span First Name: 
+						span(id="userFirstName")
+					li.list-group-item 
+						span Last Name: 
+						span(id="userLastName")
+					li.list-group-item 
+						span Age: 
+						span(id="userAge")
+					li.list-group-item
+						span Guid: 
+						span(id="userGuid") 
+					li.list-group-item
+						span Mail: 
+						span(id="userMail")
+			.col-sm-8#addUser
+				form.form-signin
+					h2.form-signin-heading Add Contact
+						label.sr-only(for='inputFirstName') First Name
+						input#inputFirstName.form-control(type='text', placeholder='First Name', required='true')
+						label.sr-only(for='inputLastName') Last Name
+						input#inputLastName.form-control(type='text', placeholder='Last Name', required='true')
+						label.sr-only(for='inputAge') Last Name
+						input#inputAge.form-control(type='text', placeholder='Age', required='true')
+						label.sr-only(for='inputEmail') Email address
+						input#inputEmail.form-control(type='email', placeholder='Email address', required='true', autofocus='')
+						label.sr-only(for='inputGuid') Password
+						input#inputGuid.form-control(type='text', placeholder='Guid', required='true')
+						button.btn.btn-lg.btn-primary.btn-block(type='submit' onclick='addContact()') addContact
+		.row 
+			.col-sm-12
+				h2 Contacts List
 				#userList
 					table(class="table table-striped")
 						thead
@@ -32,6 +54,6 @@ append body
 								th Email
 								th Guid
 								th Age
+								th Contact Info
 								th Delete?
 						tbody
-				//USER LIST

@@ -18,6 +18,7 @@ router.get('/getcontactlist', function (req, res, next) {
  */
 router.post('/addcontact', function (req, res, next) {
   var db = req.db;
+  console.log(req.body)
   db.collection('contactlist').insert(req.body, function (err, result) {
     res.send(
       (err === null) ? { msg: '' } : { msg: err }
