@@ -12,7 +12,7 @@ $(document).ready(function () {
 
     // Show User link click
     $('#userList table tbody').on('click', 'td button.infoUser', contactInfo);
-    
+
 
 });
 
@@ -32,14 +32,14 @@ function addContact(event) {
         'mail': $("#inputEmail").val()
     }
 
-     $.each(contactsList, function(){
-        if(this.guid === newUser.guid) exist = true 
+    $.each(contactsList, function () {
+        if (this.guid === newUser.guid) exist = true
     });
 
 
     // Check and make sure errorCount's still at zero
     if (emptyInout === 0) {
-        if(!exist) {
+        if (!exist) {
             $.ajax({
                 type: 'POST',
                 data: newUser,
@@ -50,7 +50,7 @@ function addContact(event) {
                 // Check for successful (blank) response
                 if (response.msg === '') {
                     // Clear the form inputs
-                    $('#addUser fieldset input').val('');
+                    $('#addUser .form-signin input').val('');
 
                     getContactList();
                 }
@@ -61,7 +61,7 @@ function addContact(event) {
             });
         }
         else {
-             alert('Error:  Guid already exists');
+            alert('Error:  Guid already exists');
         }
     }
 }
@@ -95,12 +95,11 @@ function getContactList() {
 
         // Stick our user data array into a userlist variable in the global object
         contactsList = data;
-       
+
         $.each(data, function () {
             tableContent += '<tr>';
-            tableContent += '<td><a href="#" class="linkshowuser" rel="' + this.firstname + '" title="Show Details">' + this.firstname + '</a></td>';
+            tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
             tableContent += '<td>' + this.mail + '</td>';
-            tableContent += '<td>' + this.guid + '</td>';
             tableContent += '<td>' + this.age + '</td>';
             tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
@@ -112,22 +111,22 @@ function getContactList() {
     });
 }
 
-function contactInfo(event){
+function contactInfo(event) {
 
     event.preventDefault();
 
     var thisGuid = $(this).attr('rel');
     var thisContact;
 
-    $.each(contactsList, function(){
-        if(this.guid === thisGuid) thisContact = this 
+    $.each(contactsList, function () {
+        if (this.guid === thisGuid) thisContact = this
     });
-   
-   console.log(thisContact);
 
-   $('#userFirstName').text(thisContact.firstname);
-   $('#userLastName').text(thisContact.lastname);
-   $('#userAge').text(thisContact.age);
-   $('#userGuid').text(thisContact.guid);
-   $('#userMail').text(thisContact.mail);
+    console.log(thisContact);
+
+    $('#userFirstName').text(thisContact.firstname);
+    $('#userLastName').text(thisContact.lastname);
+    $('#userAge').text(thisContact.age);
+    $('#userGuid').text(thisContact.guid);
+    $('#userMail').text(thisContact.mail);
 }
