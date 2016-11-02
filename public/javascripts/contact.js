@@ -116,7 +116,7 @@ function getContactList() {
         crossDomain: true,
     }).done(function (response) {
 
-        console.log('response -->',response);
+        console.log('response -->', response);
 
     });
 }
