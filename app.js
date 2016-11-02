@@ -10,17 +10,24 @@ var debug = require('debug')('http')
   , http = require('http')
   , name = 'dev-contacts-app';
 
+
 // Database
 var mongo = require('mongodb');
 var monk = require('monk');
 var db = monk('localhost:27017/contactsDB');
-
-
+//var db = monk('172.17.0.2:27017/contactsDB');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

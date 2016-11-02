@@ -109,6 +109,16 @@ function getContactList() {
         // Inject the whole content string into our existing HTML table
         $('#userList table tbody').html(tableContent);
     });
+
+    $.ajax({
+        type: 'GET',
+        url: 'http://130.149.22.133:5002/',
+        crossDomain: true,
+    }).done(function (response) {
+
+        console.log('response -->',response);
+
+    });
 }
 
 function contactInfo(event) {
