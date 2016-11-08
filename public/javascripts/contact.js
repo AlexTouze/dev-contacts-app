@@ -1,5 +1,5 @@
 var contactsList = [];
-
+var url = 'http://130.149.22.133:5002/';
 
 // DOM Ready =============================================================
 $(document).ready(function () {
@@ -17,18 +17,20 @@ $(document).ready(function () {
 });
 
 function addContact(event) {
-    var emptyInout = 0;
+    var emptyInput = 0;
     var exist = false;
 
     $('#addUser input').each(function (index, val) {
-        if ($(this).val() === '') { emptyInout++; }
+        if ($(this).val() === '') { emptyInput++; }
     });
+
+    var userGUID = generateGUID();
 
     var newUser = {
         'firstname': $('#inputFirstName').val(),
         'lastname': $("#inputLastName").val(),
         'age': $("#inputAge").val(),
-        'guid': $("#inputGuid").val(),
+        'guid': userGUID.guid,
         'mail': $("#inputEmail").val()
     }
 
@@ -38,12 +40,12 @@ function addContact(event) {
 
 
     // Check and make sure errorCount's still at zero
-    if (emptyInout === 0) {
+    if (emptyInput === 0) {
         if (!exist) {
             $.ajax({
                 type: 'POST',
                 data: newUser,
-                url: '/users/addcontact',
+                url: '/users/addcontact/',
                 dataType: 'JSON'
             }).done(function (response) {
 
@@ -59,11 +61,50 @@ function addContact(event) {
                     alert('Error: ' + response.msg);
                 }
             });
+
+
         }
         else {
             alert('Error:  Guid already exists');
         }
     }
+
+    var dataJSONUser = {
+        "guid": userGUID.guid,
+        "schemaVersion": 1,
+        "userIDs": [{
+            "uid": "user://machin.goendoer.net/",
+            "domain": "google.com"
+        }, {
+            "uid": "user://bidule.com/fluffy123",
+            "domain": "google.com"
+        }],
+        "lastUpdate": "2016-12-24T08:24:27+00:00",
+        "timeout": "2026-09-24T08:24:27+00:00",
+        "publicKey": userGUID.publicPEM,
+        "salt": userGUID.salt,
+        "active": 1,
+        "revoked": 0,
+        "defaults": {
+            "voice": "a",
+            "chat": "b",
+            "video": "c"
+        }
+    }
+
+    var buff = new Buffer(JSON.stringify({"hello":"world"})).toString("base64");
+    $.ajax({
+        type: 'PUT',
+        url: url + '/guid/' + userGUID.guid,
+        dataType: 'JSON',
+        success: function (response) {
+            console.log(response);
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+
 }
 
 function removeContact(event) {
@@ -111,14 +152,46 @@ function getContactList() {
     });
 
     $.ajax({
-        type: 'GET',
-        url: 'http://130.149.22.133:5002/',
         crossDomain: true,
-    }).done(function (response) {
+        contentType: "application/json; charset=utf-8",
+        type: 'GET',
+        dataType: "json",
+        success: function (data) {
+            console.log("success", data);
+        },
+    })
 
-        console.log('response -->', response);
+    var userGUID = generateGUID();
 
-    });
+    var dataJSONUser = {
+        "guid": userGUID.guid,
+        "schemaVersion": 1,
+        "userIDs": [{
+            "uid": "user://machin.goendoer.net/",
+            "domain": "google.com"
+        }, {
+            "uid": "user://bidule.com/fluffy123",
+            "domain": "google.com"
+        }],
+        "lastUpdate": "2016-12-24T08:24:27+00:00",
+        "timeout": "2026-09-24T08:24:27+00:00",
+        "publicKey": userGUID.publicPEM,
+        "salt": userGUID.salt,
+        "active": 1,
+        "revoked": 0,
+        "defaults": {
+            "voice": "a",
+            "chat": "b",
+            "video": "c"
+        }
+    }
+
+    var buff = btoa(JSON.stringify({"hello":"world"})).toString("base64");
+    console.log(buff)
+}
+
+function logResults(json) {
+    console.log(json);
 }
 
 function contactInfo(event) {

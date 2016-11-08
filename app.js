@@ -15,8 +15,8 @@ var cors = require('cors');
 // Database
 var mongo = require('mongodb');
 var monk = require('monk');
-var db = monk('localhost:27017/contactsDB');
-//var db = monk('172.17.0.2:27017/contactsDB');
+//var db = monk('mongo.rethink3.orange-labs.fr/test');
+var db = monk('127.0.0.1:27017/contactsDB');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -36,18 +36,14 @@ app.use(cookieParser());
 app.use(cors()); 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', "*"); 
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type'); 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  req.header("Access-Control-Allow-Origin", "*");
+  req.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
-})
-
-app.all('/*', function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,X-Requested-With');
-    next();
 });
+
 
 app.use(function (req, res, next) {
   req.db = db;
