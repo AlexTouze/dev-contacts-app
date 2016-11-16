@@ -15,6 +15,8 @@ var mongo = require('mongodb');
 var monk = require('monk');
 var db = monk('localhost:27017/contactsDB');
 
+//Global registry
+var globlaRegistryUrl = ""
 
 
 var routes = require('./routes/index');
@@ -36,6 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
       req.db = db;
+      req.globalRegistry = globlaRegistryUrl;
       req.title = "Contacts App"
       next();
 });
