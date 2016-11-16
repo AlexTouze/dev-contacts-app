@@ -1,20 +1,17 @@
 var contactsList = [];
 var url = 'http://130.149.22.133:5002/';
 
-// DOM Ready =============================================================
-$(document).ready(function () {
 
-    // Populate the user table on initial page load
-    getContactList();
-
+function addContactEvent(){
     // Delete User link click
     $('#userList table tbody').on('click', 'td button.deleteUser', removeContact);
 
     // Show User link click
     $('#userList table tbody').on('click', 'td button.infoUser', contactInfo);
 
-
-});
+    // Show User link click
+    $('#userList table tbody').on('click', 'td button.callUser', callUser);
+}
 
 function addContact(event) {
     var emptyInput = 0;
@@ -92,7 +89,7 @@ function addContact(event) {
         }
     }
 
-    var buff = new Buffer(JSON.stringify({"hello":"world"})).toString("base64");
+    /*var buff = new Buffer(JSON.stringify({"hello":"world"})).toString("base64");
     $.ajax({
         type: 'PUT',
         url: url + '/guid/' + userGUID.guid,
@@ -103,7 +100,7 @@ function addContact(event) {
         error: function (response) {
             console.log(response);
         }
-    });
+    });*/
 
 }
 
@@ -132,7 +129,7 @@ function getContactList() {
     // Empty content string
     var tableContent = '';
 
-    $.getJSON('/users/getcontactlist', function (data) {
+    $.getJSON('/users/getcontactlists', function (data) {
 
         // Stick our user data array into a userlist variable in the global object
         contactsList = data;
@@ -144,6 +141,7 @@ function getContactList() {
             tableContent += '<td>' + this.age + '</td>';
             tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
+            tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" rel="' + this.mail + '" >call</button></td>';
             tableContent += '</tr>';
         });
 
@@ -151,7 +149,7 @@ function getContactList() {
         $('#userList table tbody').html(tableContent);
     });
 
-    $.ajax({
+    /*$.ajax({
         crossDomain: true,
         contentType: "application/json; charset=utf-8",
         type: 'GET',
@@ -159,7 +157,7 @@ function getContactList() {
         success: function (data) {
             console.log("success", data);
         },
-    })
+    })*/
 
     var userGUID = generateGUID();
 

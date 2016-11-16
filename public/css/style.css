@@ -1,9 +1,11 @@
 body {
-    padding: 50px;
-    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-    min-height: inherit;
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  min-height: inherit;
 }
-
 a {
   color: #00B7FF;
+}
+#rethink {
+  display: none !important;
 }

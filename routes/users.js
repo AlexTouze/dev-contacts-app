@@ -5,7 +5,7 @@ var debug = require('debug')('users');
 /*
  * GET userlist.
  */
-router.get('/getcontactlist', function (req, res, next) {
+router.get('/getcontactlists', function (req, res, next) {
   var db = req.db;
   var collection = db.get('contactlist');
    collection.find({},{},function(e,docs){

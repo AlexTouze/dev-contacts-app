@@ -10,12 +10,16 @@ append styles
 	script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
 	script(src='/javascripts/contact.js')
 append scripts
+	script(src='../javascripts/load.js')
+	script(src='../javascripts/loadRuntime.js')
 	script(src='../javascripts/contact.js')
-	script(src='../javascripts/guid.js')
-	script(src='../javascripts/bitcoinjs.min.js')
-	script(src='../javascripts/bip39.js')
-	script(src='../javascripts/jsrsasign-latest-all-min.js')
-	script(src='../javascripts/sjcl.js')
+	script(src='../javascripts/loadRuntime.js')
+	script(src='../javascripts/guid/guid.js')
+	script(src='../javascripts/guid/bitcoinjs.min.js')
+	script(src='../javascripts/guid/bip39.js')
+	script(src='../javascripts/guid/jsrsasign-latest-all-min.js')
+	script(src='../javascripts/guid/sjcl.js')
+	script(src='#{domain}.well-known/runtime/rethink.js')
 append body
 	// Fixed navbar
 	nav.navbar.navbar-default.navbar-fixed-top
@@ -26,7 +30,7 @@ append body
 					span.icon-bar
 					span.icon-bar
 					span.icon-bar
-				a.navbar-brand(href='#') Contacts App
+				a.navbar-brand(href='#')!= title
 			#navbar.navbar-collapse.collapse
 				ul.nav.navbar-nav
 					li.active
@@ -75,4 +79,5 @@ append body
 								th Age
 								th Contact Info
 								th Delete?
+								th Call
 						tbody

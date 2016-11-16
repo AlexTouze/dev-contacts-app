@@ -45,20 +45,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(function(req, res, next) {
       req.db = db;
       req.globalRegistry = globlaRegistryUrl;
-      req.title = "Contacts App"
+      req.title = "Contacts App";
+      req.currentDomain =  "https://hello.rethink3.orange-labs.fr/";
+      // req.currentDomain =  req.get('host');
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  req.header("Access-Control-Allow-Origin", "*");
-  req.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
-
-app.use(function (req, res, next) {
-  req.db = db;
-  req.title = "Contacts App"
-  next();
 });
 
 app.use('/', routes);
