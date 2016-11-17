@@ -81,3 +81,28 @@ append body
 								th Delete?
 								th Call
 						tbody
+		.row.videoSection 
+			.col-sm-12
+				video.video(autoplay)
+				video.my-video.responsive-video(muted autoplay) 
+				div.hide 
+					button.camera.waves-effect.waves-light.btn(data-text-swap="videocam_on" data-text-original="videocam_off")
+						i.material-icons.left videocam_off
+					button.mute.waves-effect.waves-light.btn(data-text-swap="volume_on" data-text-original="volume_off")
+						i.material-icons.left volume_off
+					button.mic.waves-effect.waves-light.btn
+						i.material-icons.left mic
+					button.hangout.waves-effect.waves-light.btn
+						i.material-icons.left call_end
+		.modal.fade#inComingCall
+			.modal-dialog(role="document")
+				.modal-content
+					.modal-header
+						button.close(type="button" data-dismiss="modal" aria-label="Close")
+							span(aria-hidden="true") &times;
+						h4.modal-title Modal title
+					.modal-body
+						p One fine body&hellip;
+					.modal-footer
+						button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
+						button(type="button" class="btn btn-primary") Save changes
