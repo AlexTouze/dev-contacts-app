@@ -81,11 +81,11 @@ append body
 								th Delete?
 								th Call
 						tbody
-		.row.videoSection 
+		.row.videoSection.hide
 			.col-sm-12
 				video.video(autoplay)
 				video.my-video.responsive-video(muted autoplay) 
-				div.hide 
+				div
 					button.camera.waves-effect.waves-light.btn(data-text-swap="videocam_on" data-text-original="videocam_off")
 						i.material-icons.left videocam_off
 					button.mute.waves-effect.waves-light.btn(data-text-swap="volume_on" data-text-original="volume_off")
@@ -100,9 +100,23 @@ append body
 					.modal-header
 						button.close(type="button" data-dismiss="modal" aria-label="Close")
 							span(aria-hidden="true") &times;
-						h4.modal-title Modal title
+						h4.modal-title In Coming Call
 					.modal-body
-						p One fine body&hellip;
+						.col-lg-4
+							img(src="" alt="" id="avatar").col-lg-12.circle
+						.col-lg-8
+							.col-lg-12
+								span.text-right Name: 
+								span(id="calleeName").black-text
+							.col-lg-12
+								span.text-right Email:
+								span(id="calleeUsername").black-text
+							.col-lg-12
+								span.text-right Locale: 
+								span(id="calleLocale").black-text
+							.col-lg-12
+								span.text-right UserURL: 
+								span(id="calleUserURL").black-text
 					.modal-footer
-						button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
-						button(type="button" class="btn btn-primary") Save changes
+						button(type="button" class="btn btn-secondary" data-dismiss="modal" id="rejectedCall") Reject
+						button(type="button" class="btn btn-primary" id="acceptedCall" data-dismiss="modal") Accept

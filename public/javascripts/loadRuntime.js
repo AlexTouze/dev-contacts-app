@@ -44,7 +44,7 @@ function loadHypertyConnector() {
     RUNTIME.requireHyperty(hypertyURIC(domain, 'Connector')).then((hyperty) => {
         isLoaded = true;
         hypertyConnector = hyperty;
-        result.instance.onInvitation(function (controller, identity) {
+        hyperty.instance.onInvitation(function (controller, identity) {
             notificationHandler(controller, identity);
         });
     }).catch(function (err) {
@@ -56,10 +56,46 @@ function loadHypertyConnector() {
 
 
 function notificationHandler(controller, identity) {
+    $('#avatar').attr("src", identity.avatar)
+    $('#calleeName').text(identity.cn);
+    $('#calleeUsername').text(identity.username);
+    $('#calleLocale').text(identity.locale);
+    $('#calleUserURL').text(identity.userURL);
+    $('#acceptedCall').click(function (event) {
+        acceptCall(event, controller)
+    });
+    $('#rejectedCall').click(function (event) {
+        rejectCall(event, controller)
+    });
+    $('#inComingCall').modal().show();
+}
 
-    console.log('controller', controller);
-    console.log('identity', identity);
-    $('#inComingCall').modal();
+function acceptCall(event, controller) {
+    $('#inComingCall').modal().hide();
+    $('.videoSection').removeClass('hide');
+    $('#rejectedCall').click();
+    showVideo(controller);
+    event.preventDefault();
+    var options = options || { video: true, audio: true };
+    getUserMedia(options).then(function (mediaStream) {
+        processMyVideo(mediaStream);
+        return controller.accept(mediaStream);
+    })
+        .then(function (result) {
+            console.log(result);
+        }).catch(function (reason) {
+            endCall();
+            console.error(reason);
+        });
+}
+
+function rejectCall(event, controller) {
+    controller.decline().then(function (result) {
+        console.log(result);
+    }).catch(function (reason) {
+        console.error(reason);
+    });
+    event.preventDefault();
 }
 
 function callUser() {
@@ -86,13 +122,12 @@ function openVideo(userUrl, userdomain) {
     getUserMedia(options).then(function (mediaStream) {
 
     }).then(function (controller) {
-        showVideo(controller)
+        showVideo(controller);
+        $('.videoSection').removeClass('hide');
         $('.my-video')[0].src = URL.createObjectURL(mediaStream);
     }).catch(function (reason) {
         console.log(reason);
     })
-
-
 }
 
 /**
@@ -110,33 +145,69 @@ function getUserMedia(constraints) {
     });
 }
 
-function showVideo() {
+function showVideo(controller) {
     controller.onAddStream(function (event) {
         processVideo(event);
     });
 
+
     controller.onDisconnect(function (identity) {
-        hideVideo();
-        disconnecting();
+        endCall();
+    });
+    
+    /*** End call ***/
+    $('.videoSection .hangout.btn').on('click', function (event) {
+        controller.disconnect(function (identity) {
+            endCall();
+        });
     });
 
+    /*** Video Off/On ***/
     $('.videoSection .camera.btn').on('click', function (event) {
         event.preventDefault();
-        controller.disableVideo().then(function (status) {
-            console.log(status, 'camera');
-            var icon = 'videocam_off';
-            var text = 'Disable Camera';
-            if (!status) {
-                text = 'Enable Camera';
-                icon = 'videocam';
-            }
-
-            var iconEl = '<i class="material-icons left">' + icon + '</i>';
-            $(event.currentTarget).html(iconEl);
+        controller.disableVideo().then(function () {
+            var el = $(this);
+            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
         }).catch(function (e) {
             console.error(e);
         });
-
     });
+
+    /*** Mute ***/
+    $('.videoSection .mute.btn').on('click', function (event) {
+        event.preventDefault();
+        controller.mute().then(function () {
+            var el = $(this);
+            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
+        }).catch(function (e) {
+            console.error(e);
+        });
+    });
+
+    /*** Micro ***/
+    $('.videoSection .mic.btn').on('click', function (event) {
+        event.preventDefault();
+        controller.disableAudio().then(function () {
+            var el = $(this);
+            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
+        }).catch(function (e) {
+            console.error(e);
+        });
+    });
+}
+
+function endCall() {
+    $('.videoSection').addClass('hide');
+    $('.video')[0].src = $('.my-video')[0].src = '';
+}
+
+function processVideo(event) {
+    console.log('Process Video: ', event);
+    $('.video')[0].src = URL.createObjectURL(event.stream);
+}
+
+function processMyVideo(mediaStream) {
+    console.log('Process Local Video: ', mediaStream);
+    $('.my-video')[0].src = URL.createObjectURL(mediaStream);
 }
 

@@ -9,3 +9,6 @@ a {
 #rethink {
   display: none !important;
 }
+.modal-body {
+  overflow: hidden;
+}
