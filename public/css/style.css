@@ -12,3 +12,15 @@ a {
 .modal-body {
   overflow: hidden;
 }
+.videoSection video {
+  background-color: black;
+  top: 10px;
+  right: 10px;
+}
+.videoSection video.video {
+  width: 80%;
+}
+.videoSection video.my-video {
+  width: 10%;
+  height: 80px;
+}

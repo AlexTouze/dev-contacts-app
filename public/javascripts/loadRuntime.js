@@ -43,9 +43,10 @@ function loadRuntime() {
 function loadHypertyConnector() {
     RUNTIME.requireHyperty(hypertyURIC(domain, 'Connector')).then((hyperty) => {
         isLoaded = true;
-        hypertyConnector = hyperty;
-        hyperty.instance.onInvitation(function (controller, identity) {
+        hypertyConnector = hyperty.instance;
+        hypertyConnector.onInvitation(function (controller, identity) {
             notificationHandler(controller, identity);
+            var remoteStram = controller.mediaStream();
         });
     }).catch(function (err) {
 
@@ -61,20 +62,24 @@ function notificationHandler(controller, identity) {
     $('#calleeUsername').text(identity.username);
     $('#calleLocale').text(identity.locale);
     $('#calleUserURL').text(identity.userURL);
+
     $('#acceptedCall').click(function (event) {
         acceptCall(event, controller)
     });
     $('#rejectedCall').click(function (event) {
         rejectCall(event, controller)
     });
+
     $('#inComingCall').modal().show();
 }
 
 function acceptCall(event, controller) {
+    
+    showVideo(controller);
+    
     $('#inComingCall').modal().hide();
     $('.videoSection').removeClass('hide');
-    $('#rejectedCall').click();
-    showVideo(controller);
+    
     event.preventDefault();
     var options = options || { video: true, audio: true };
     getUserMedia(options).then(function (mediaStream) {
@@ -100,7 +105,7 @@ function rejectCall(event, controller) {
 
 function callUser() {
     var thisEmail = $(this).attr('rel');
-    hypertyConnector.instance.search.users([thisEmail], [domain], ['connection'], ['audio', 'video']).then(emailDiscovered).catch(emailDiscoveredError);
+    hypertyConnector.search.users([thisEmail], [domain], ['connection'], ['audio', 'video']).then(emailDiscovered).catch(emailDiscoveredError);
 }
 
 function emailDiscovered(result) {
@@ -119,12 +124,15 @@ function emailDiscoveredError(err) {
 
 function openVideo(userUrl, userdomain) {
     var options = { video: true, audio: true };
-    getUserMedia(options).then(function (mediaStream) {
+    var localMediaStream;
 
+    getUserMedia(options).then(function (mediaStream) {
+        localMediaStream = mediaStream;
+        return hypertyConnector.connect(userUrl, mediaStream, '', userdomain);
     }).then(function (controller) {
         showVideo(controller);
         $('.videoSection').removeClass('hide');
-        $('.my-video')[0].src = URL.createObjectURL(mediaStream);
+        processMyVideo(localMediaStream);
     }).catch(function (reason) {
         console.log(reason);
     })
@@ -146,50 +154,54 @@ function getUserMedia(constraints) {
 }
 
 function showVideo(controller) {
+
     controller.onAddStream(function (event) {
         processVideo(event);
     });
 
-
     controller.onDisconnect(function (identity) {
         endCall();
     });
-    
+
     /*** End call ***/
     $('.videoSection .hangout.btn').on('click', function (event) {
-        controller.disconnect(function (identity) {
+        event.preventDefault();
+        controller.disconnect().then(function (status) {
             endCall();
+        }).catch(function (err) {
+            console.log(err)
         });
     });
 
+
     /*** Video Off/On ***/
-    $('.videoSection .camera.btn').on('click', function (event) {
+    var cameraBtn = $('.videoSection .camera.btn');
+    cameraBtn.on('click', function (event) {
         event.preventDefault();
         controller.disableVideo().then(function () {
-            var el = $(this);
-            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
+            cameraBtn.text() == cameraBtn.data("text-swap") ? cameraBtn.text(cameraBtn.data("text-original")) : cameraBtn.text(cameraBtn.data("text-swap"));
         }).catch(function (e) {
             console.error(e);
         });
     });
 
     /*** Mute ***/
-    $('.videoSection .mute.btn').on('click', function (event) {
+    var muteBtn = $('.videoSection .mute.btn');
+    muteBtn.on('click', function (event) {
         event.preventDefault();
         controller.mute().then(function () {
-            var el = $(this);
-            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
+            muteBtn.text() == muteBtn.data("text-swap") ? muteBtn.text(muteBtn.data("text-original")) : muteBtn.text(muteBtn.data("text-swap"));
         }).catch(function (e) {
             console.error(e);
         });
     });
 
     /*** Micro ***/
-    $('.videoSection .mic.btn').on('click', function (event) {
+    var micBtn = $('.videoSection .mic.btn');
+    micBtn.on('click', function (event) {
         event.preventDefault();
         controller.disableAudio().then(function () {
-            var el = $(this);
-            el.text() == el.data("text-swap") ? el.text(el.data("text-original")) : el.text(el.data("text-swap"));
+            micBtn.text() == micBtn.data("text-swap") ? micBtn.text(micBtn.data("text-original")) : micBtn.text(micBtn.data("text-swap"));
         }).catch(function (e) {
             console.error(e);
         });

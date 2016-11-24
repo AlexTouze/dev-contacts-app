@@ -83,15 +83,15 @@ append body
 						tbody
 		.row.videoSection.hide
 			.col-sm-12
-				video.video(autoplay)
+				video.video.responsive-video(autoplay)
 				video.my-video.responsive-video(muted autoplay) 
 				div
 					button.camera.waves-effect.waves-light.btn(data-text-swap="videocam_on" data-text-original="videocam_off")
 						i.material-icons.left videocam_off
 					button.mute.waves-effect.waves-light.btn(data-text-swap="volume_on" data-text-original="volume_off")
 						i.material-icons.left volume_off
-					button.mic.waves-effect.waves-light.btn
-						i.material-icons.left mic
+					button.mic.waves-effect.waves-light.btn(data-text-swap="mic_on" data-text-original="mic_off")
+						i.material-icons.left mic_off
 					button.hangout.waves-effect.waves-light.btn
 						i.material-icons.left call_end
 		.modal.fade#inComingCall
