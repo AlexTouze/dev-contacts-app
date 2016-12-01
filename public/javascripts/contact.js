@@ -1,8 +1,9 @@
 var contactsList = [];
-var url = 'http://130.149.22.133:5002/';
+var url = 'http://130.149.22.133:5002';
+var port = '5002'
 
 
-function addContactEvent(){
+function addContactEvent() {
     // Delete User link click
     $('#userList table tbody').on('click', 'td button.deleteUser', removeContact);
 
@@ -11,9 +12,13 @@ function addContactEvent(){
 
     // Show User link click
     $('#userList table tbody').on('click', 'td button.callUser', callUser);
+
+    $('.addContact').on('click', addContact);
+
 }
 
 function addContact(event) {
+    event.preventDefault();
     var emptyInput = 0;
     var exist = false;
 
@@ -66,6 +71,25 @@ function addContact(event) {
         }
     }
 
+
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1; //January is 0!
+    var yyyy = today.getFullYear();
+    var hours = today.getHours();
+    var min = today.getMinutes();
+    var sec = today.getSeconds();
+
+    if (dd < 10) {
+        dd = '0' + dd
+    }
+
+    if (mm < 10) {
+        mm = '0' + mm
+    }
+    today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+    var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+
     var dataJSONUser = {
         "guid": userGUID.guid,
         "schemaVersion": 1,
@@ -76,8 +100,8 @@ function addContact(event) {
             "uid": "user://bidule.com/fluffy123",
             "domain": "google.com"
         }],
-        "lastUpdate": "2016-12-24T08:24:27+00:00",
-        "timeout": "2026-09-24T08:24:27+00:00",
+        "lastUpdate": today,
+        "timeout": timeout,
         "publicKey": userGUID.publicPEM,
         "salt": userGUID.salt,
         "active": 1,
@@ -89,20 +113,24 @@ function addContact(event) {
         }
     }
 
-    /*var buff = new Buffer(JSON.stringify({"hello":"world"})).toString("base64");
+    var oHeader = { alg: 'ES256', typ: 'JWT' };
+    var sHeader = JSON.stringify(oHeader);
+    var sPayload = utf8tob64u(JSON.stringify(dataJSONUser));
+    var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
+    var path = '/guid/' + userGUID.guid;
+    var dataUser = { url: url, port :port, path, jwt: sJWT };
+
     $.ajax({
         type: 'PUT',
-        url: url + '/guid/' + userGUID.guid,
-        dataType: 'JSON',
-        success: function (response) {
-            console.log(response);
-        },
-        error: function (response) {
-            console.log(response);
-        }
-    });*/
+        url: '/users/addcontact/',
+        data: dataUser
+    }).done(function (response) {
+        console.log(response)
+    })
 
 }
+
+
 
 function removeContact(event) {
 
@@ -184,7 +212,7 @@ function getContactList() {
         }
     }
 
-    var buff = btoa(JSON.stringify({"hello":"world"})).toString("base64");
+    var buff = btoa(JSON.stringify({ "hello": "world" })).toString("base64");
     console.log(buff)
 }
 
