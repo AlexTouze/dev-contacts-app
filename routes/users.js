@@ -39,17 +39,17 @@ router.put('/addcontact', function (req, res, next) {
       port: '5002',
       headers: {
         'Content-Length': req.body.jwt.length,
-        'Content-Type': 'application/text'
+        'Content-Type': 'application/json'
       },
-      json: JSON.stringify(req.body.jwt) 
+      json: JSON.stringify(req.body.jwt)
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
-        console.log('error'+ response.statusCode)
-        console.log(req.body.jwt)
+        console.log('error '+ response.statusCode)
+        console.log(JSON.stringify(req.body.jwt))
       } else {
         console.log('statusCode: ' + response.statusCode)
-        console.log(req.body.jwt)
+        console.log(JSON.stringify(req.body.jwt))
       }
     }
   )
