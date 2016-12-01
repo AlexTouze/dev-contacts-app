@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var debug = require('debug')('users');
 var request = require('request');
+var fs = require('fs');
 
 /*
  * GET userlist.
@@ -28,22 +29,47 @@ router.post('/addcontact', function (req, res, next) {
 
 router.put('/addcontact', function (req, res, next) {
   //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
-  var options = {
-    proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-    url: req.body.url + req.body.path,
-    port: '5002',
-    method: 'PUT',
-    headers: {
-      'Content-Length': req.body.jwt.length,
-      'Content-Type': 'application/text'
+  /*var source = fs.createWriteStream(req.body.jwt);
+  console.log("soure", source);*/
+  request(
+    {
+      method: 'PUT',
+      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      uri: req.body.url + req.body.path,
+      port: '5002',
+      headers: {
+        'Content-Length': req.body.jwt.length,
+        'Content-Type': 'application/text'
+      },
+      json: JSON.stringify(req.body.jwt) 
+    },
+    function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log('error'+ response.statusCode)
+        console.log(req.body.jwt)
+      } else {
+        console.log('statusCode: ' + response.statusCode)
+        console.log(req.body.jwt)
+      }
     }
-  };
-  function callback(error, response, body) {
-    console.log('response', response.statusCode);
-    res.send((error === null) ? { msg: response.statusCode } : { msg: 'error: ' + error });
-  }
+  )
 
-  request(options, callback);
+
+  /*request(
+    {
+      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      url: req.body.url,
+      port: '5002',
+      method: 'GET'
+    },
+    function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log('document saved as: http://proxy.rd.francetelecom.fr:3128/')
+      } else {
+        console.log('response: ' + JSON.stringify(body))
+      }
+    }
+  )*/
 
 });
 
