@@ -34,14 +34,14 @@ router.put('/addcontact', function (req, res, next) {
   request(
     {
       method: 'PUT',
-      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      /*proxy: 'http://proxy.rd.francetelecom.fr:3128/',*/
       uri: req.body.url + req.body.path,
       port: '5002',
       headers: {
         'Content-Length': req.body.jwt.length,
         'Content-Type': 'application/json'
       },
-      json: JSON.stringify(req.body.jwt)
+      data: JSON.stringify(req.body.jwt)
     },
     function (error, response, body) {
       if (response.statusCode != 200) {

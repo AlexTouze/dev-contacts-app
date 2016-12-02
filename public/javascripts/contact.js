@@ -54,8 +54,7 @@ function addContact(event) {
                 // Check for successful (blank) response
                 if (response.msg === '') {
                     // Clear the form inputs
-                    $('#addUser .form-signin input').val('');
-
+                    $(".form-signin")[0].reset();
                     getContactList();
                 }
                 else {
@@ -129,8 +128,6 @@ function addContact(event) {
     })
 
 }
-
-
 
 function removeContact(event) {
 
