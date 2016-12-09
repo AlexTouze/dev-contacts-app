@@ -2,7 +2,10 @@ var express = require('express');
 var router = express.Router();
 var debug = require('debug')('users');
 var request = require('request');
+var jwt = require('jsonwebtoken');
+var base64url = require('base64url');
 var fs = require('fs');
+var jws = require('jws');
 
 /*
  * GET userlist.
@@ -31,10 +34,48 @@ router.put('/addcontact', function (req, res, next) {
   //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
   /*var source = fs.createWriteStream(req.body.jwt);
   console.log("soure", source);*/
-  request(
+  var currentUser = req.body;
+  var playload = base64url(currentUser.sPayload);
+
+  /*jwt.sign({
+    data: playload
+  }, currentUser.privateKey, { algorithm: 'ES256', header: currentUser.sHeader }, function (err, token) {
+    console.log(err);
+  });*/
+
+  var signature = jws.sign({
+    header: { alg: 'ES256' },
+    payload:  playload,
+    secret: currentUser.privateKey,
+  });
+
+
+  jwt.sign({
+    data: playload
+  }, 'secret', { expiresIn: 60 * 60, algorithm: 'ES256' }, function (err, token) {
+    console.log(err);
+    console.log(token);
+  });
+
+
+  /*jwt.sign({
+    data: currentUser.sPayload
+  }, currentUser.privateKey, { expiresIn: 60 * 60, algorithm: 'ES256', header: currentUser.sHeader }, function (err, token) {
+    console.log(token);
+    console.log(err);
+  });*/
+  /*   var b = jwt.sign({
+    data: currentUser.sPayload
+  }, currentUser.privateKey, { expiresIn: 60 * 60, algorithm: 'RS256', header: currentUser.sHeader }, function (err, token) {
+    console.log(token);
+    console.log(err);
+  });
+ });*/
+
+  /*request(
     {
       method: 'PUT',
-      /*proxy: 'http://proxy.rd.francetelecom.fr:3128/',*/
+      //proxy: 'http://proxy.rd.francetelecom.fr:3128/',
       uri: req.body.url + req.body.path,
       port: '5002',
       headers: {
@@ -52,7 +93,7 @@ router.put('/addcontact', function (req, res, next) {
         console.log(JSON.stringify(req.body.jwt))
       }
     }
-  )
+  )*/
 
 
   /*request(

@@ -11,7 +11,6 @@ var debug = require('debug')('http')
   , name = 'dev-contacts-app';
 var cors = require('cors');
 
-
 // Database
 var mongo = require('mongodb');
 var monk = require('monk');
@@ -39,18 +38,18 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(cors()); 
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(function(req, res, next) {
-      req.db = db;
-      req.globalRegistry = globlaRegistryUrl;
-      req.title = "Contacts App";
-      req.currentDomain =  "https://hello.rethink3.orange-labs.fr/";
-      // req.currentDomain =  req.get('host');
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-      next();
+app.use(function (req, res, next) {
+  req.db = db;
+  req.globalRegistry = globlaRegistryUrl;
+  req.title = "Contacts App";
+  req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
+  // req.currentDomain =  req.get('host');
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
 
 app.use('/', routes);

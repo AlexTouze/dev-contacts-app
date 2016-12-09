@@ -36,31 +36,23 @@ function generateECDSA() {
     publicPEM = KEYUTIL.getPEM(pubKey, 'PKCS8PUB');
     publicPEM = publicPEM.replace(/(\r\n|\n|\r)/gm, ""); // removing line breaks
     privatePEM = KEYUTIL.getPEM(prvKey, 'PKCS8PRV');
-
-    return { publicPEM: publicPEM, privatePEM: privatePEM };
 }
 
 //get a string to be used as a salt
 function generateSalt() {
-    // salt
     var saltWord = bip39.generateMnemonic(8);
     var saltHashedBitArray = sjcl.hash.sha256.hash(saltWord);
     salt = sjcl.codec.base64.fromBits(saltHashedBitArray);
-
-    return salt;
 }
 
 
 // generate GUID
 function generateGUID() {
 
-    if (!publicPEM || 0 === publicPEM.length) {
-        publicPEM = generateECDSA();
-    }
+    if (!publicPEM || 0 === publicPEM.length)  generateECDSA();
 
-    if (!salt || 0 === salt.length) {
-        salt = generateSalt();
-    }
+    if (!salt || 0 === salt.length) generateSalt();
+
     var iterations = 10000;
     var guidBitArray = sjcl.misc.pbkdf2(publicPEM, salt, iterations);
     var guid = sjcl.codec.base64url.fromBits(guidBitArray);

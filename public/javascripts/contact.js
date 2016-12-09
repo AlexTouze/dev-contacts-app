@@ -111,13 +111,16 @@ function addContact(event) {
             "video": "c"
         }
     }
-
+    console.log("userGUID", userGUID);
+    var test = JSON.stringify({data : dataJSONUser});
     var oHeader = { alg: 'ES256', typ: 'JWT' };
     var sHeader = JSON.stringify(oHeader);
-    var sPayload = utf8tob64u(JSON.stringify(dataJSONUser));
+    var sPayload = JSON.stringify(dataJSONUser);
+    
     var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
+    console.log(sPayload);
     var path = '/guid/' + userGUID.guid;
-    var dataUser = { url: url, port :port, path, jwt: sJWT };
+    var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, expire: timeout };
 
     $.ajax({
         type: 'PUT',
@@ -184,33 +187,6 @@ function getContactList() {
         },
     })*/
 
-    var userGUID = generateGUID();
-
-    var dataJSONUser = {
-        "guid": userGUID.guid,
-        "schemaVersion": 1,
-        "userIDs": [{
-            "uid": "user://machin.goendoer.net/",
-            "domain": "google.com"
-        }, {
-            "uid": "user://bidule.com/fluffy123",
-            "domain": "google.com"
-        }],
-        "lastUpdate": "2016-12-24T08:24:27+00:00",
-        "timeout": "2026-09-24T08:24:27+00:00",
-        "publicKey": userGUID.publicPEM,
-        "salt": userGUID.salt,
-        "active": 1,
-        "revoked": 0,
-        "defaults": {
-            "voice": "a",
-            "chat": "b",
-            "video": "c"
-        }
-    }
-
-    var buff = btoa(JSON.stringify({ "hello": "world" })).toString("base64");
-    console.log(buff)
 }
 
 function logResults(json) {
