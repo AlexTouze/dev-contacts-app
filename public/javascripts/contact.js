@@ -11,7 +11,8 @@ function addContactEvent() {
     $('#userList table tbody').on('click', 'td button.infoUser', contactInfo);
 
     // Show User link click
-    $('#userList table tbody').on('click', 'td button.callUser', callUser);
+    //$('#userList table tbody').on('click', 'td button.callUser', callUser);
+    $('#userList table tbody').on('click', 'td button.callUser', callWebRTC);
 
     $('.addContact').on('click', addContact);
 
