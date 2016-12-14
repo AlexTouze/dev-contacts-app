@@ -1,5 +1,5 @@
 /** Region Variables **/
-var RUNTIME;
+//var RUNTIME;
 var runtimeURL;
 var domain;
 
@@ -9,7 +9,7 @@ var hypertyURIC = (domain, hyperty) => `hyperty-catalogue://catalogue.${domain}/
 
 /** Load Runtme reThink **/
 function loadreThink() {
-    RUNTIME = runtimeURL = domainhypertyConnector = null;
+    //RUNTIME = runtimeURL = domainhypertyConnector = null;
     //Rethink runtime is included in index.html
     registerDomain();
 }
@@ -20,14 +20,15 @@ function registerDomain() {
         domain = data.replace(protomatch, '');
         runtimeURL = 'hyperty-catalogue://catalogue.' + domain + '.well-known/runtime/Runtime';
     }).done(function () {
-        loadRuntime();
+        //loadRuntime();
+        loadHypertyWebRTC();
     });
 }
 
 // Loads the runtime.
 function loadRuntime() {
     var start = new Date().getTime();
-    rethink.default.install({
+    window.rethink.default.install({
         domain: domain,
         development: false,
         runtimeURL: runtimeURL

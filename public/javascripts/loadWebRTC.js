@@ -9,7 +9,7 @@ var status = STATUS_DISCONNECTED;
 
 
 function loadHypertyWebRTC() {
-    RUNTIME.requireHyperty(hypertyURIC(domain, 'DTWebRTC')).then((hyperty) => {
+    runtime.loadHyperty(hypertyURIC(domain, 'DTWebRTC')).then((hyperty) => {
        hypertyLoaded(hyperty);
     }).catch(function (err) {
 
@@ -87,7 +87,7 @@ function callWebRTC(event) {
   }
 
   var email = $(this).attr('rel');
-  var domain = $('.searchemail').find('.friend-domain').val();
+  var domain =  "hello.rethink3.orange-labs.fr";//$('.searchemail').find('.friend-domain').val();
   console.log('>>>email', email, domain);
 
   var msg = 'searching for:  ' + email + ' in domain:  ' + 'domain' + ' ...';
@@ -96,7 +96,7 @@ function callWebRTC(event) {
 
   $('.send-panel').html(msg);
 
-  hyperty.discovery.discoverHypertyPerUser(email, '').then( (result) => {
+  hyperty.discovery.discoverHypertyPerUser(email, domain).then( (result) => {
       console.log(result);
       $('.send-panel').html(
         '<br><form class="webrtcconnect">' +

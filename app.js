@@ -1,5 +1,6 @@
 //"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe" --dbpath "E:\data"
 // set DEBUG=*,-not_this
+//https://rethink.tlabscloud.com/
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -46,6 +47,7 @@ app.use(function (req, res, next) {
   req.globalRegistry = globlaRegistryUrl;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
+  //req.currentDomain = "https://rethink.tlabscloud.com/";
   // req.currentDomain =  req.get('host');
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
