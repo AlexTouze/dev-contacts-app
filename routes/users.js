@@ -33,19 +33,52 @@ router.post('/addcontact', function (req, res, next) {
 router.put('/addcontact', function (req, res, next) {
   //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
   /*var source = fs.createWriteStream(req.body.jwt);
-  console.log("soure", source);*/
+  console.log("soure", source);
+  var playload = btoa(currentUser.sPayload)*/
   var currentUser = req.body;
-  var playload = base64url(currentUser.sPayload);
+  var header = {
+    "alg": "ES256",
+    "typ": "JWT"
+  }
 
-  /*jwt.sign({
-    data: playload
-  }, currentUser.privateKey, { algorithm: 'ES256', header: currentUser.sHeader }, function (err, token) {
+  jwt.sign(currentUser.sPayload, currentUser.privateKey, { algorithm: 'ES256', header: { "alg": "ES256", "typ": "JWT" } }, function (err, token) {
     console.log(err);
-  });*/
+    var rToken = token;
+    jwt.verify(rToken, currentUser.publickey, {algorithms: ['ES256']}, function(err, decoded) {
+      console.log(decoded) // bar
+      console.log(err)
+    });
+    var decoded = jwt.decode(rToken, { complete: true });
+    console.log(decoded.header);
+    console.log(decoded.payload)
+    console.log(decoded.signature);
+    request(
+      {
+        method: 'PUT',
+        uri: req.body.url + req.body.path,
+        port: '5002',
+        headers: {
+          'Content-Length': req.body.token.length,
+          'Content-Type': 'application/json'
+        },
+        data: rToken
+      },
+      function (error, response, body) {
+        if (response.statusCode != 200) {
+          console.log('error ' + response.statusCode)
+          console.log(JSON.stringify(req.body.token))
+        } else {
+          console.log('statusCode: ' + response.statusCode)
+          console.log(JSON.stringify(req.body.token))
+        }
+      }
+    )
 
-  var signature = jws.sign({
+  });
+
+  /*var signature = jws.sign({
     header: { alg: 'ES256' },
-    payload:  playload,
+    payload: playload,
     secret: currentUser.privateKey,
   });
 
@@ -55,7 +88,7 @@ router.put('/addcontact', function (req, res, next) {
   }, 'secret', { expiresIn: 60 * 60, algorithm: 'ES256' }, function (err, token) {
     console.log(err);
     console.log(token);
-  });
+  });*/
 
 
   /*jwt.sign({
@@ -72,28 +105,7 @@ router.put('/addcontact', function (req, res, next) {
   });
  });*/
 
-  /*request(
-    {
-      method: 'PUT',
-      //proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-      uri: req.body.url + req.body.path,
-      port: '5002',
-      headers: {
-        'Content-Length': req.body.jwt.length,
-        'Content-Type': 'application/json'
-      },
-      data: JSON.stringify(req.body.jwt)
-    },
-    function (error, response, body) {
-      if (response.statusCode != 200) {
-        console.log('error '+ response.statusCode)
-        console.log(JSON.stringify(req.body.jwt))
-      } else {
-        console.log('statusCode: ' + response.statusCode)
-        console.log(JSON.stringify(req.body.jwt))
-      }
-    }
-  )*/
+
 
 
   /*request(
@@ -125,8 +137,6 @@ router.delete('/removecontact/:id', function (req, res) {
     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
   });
 });
-
-
 
 
 module.exports = router;

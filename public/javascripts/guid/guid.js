@@ -33,9 +33,28 @@ function generateECDSA() {
     pubKey.setPublicKeyHex(hPub);
     pubKey.isPrivate = false;
     pubKey.isPublic = true;
-    publicPEM = KEYUTIL.getPEM(pubKey, 'PKCS8PUB');
+    
+    var ec = new KJUR.crypto.ECDSA({'curve': 'secp256k1'});
+
+    var keypair = ec.generateKeyPairHex();
+    var pubKey;
+    var prvKey; 
+    /*pubKey = prvKey = ec;
+    pubKey.setPrivateKeyHex(null);
+    pubKey.isPrivate = false;
+    pubKey.isPublic = true;
+    prvKey.setPublicKeyHex(null);
+    prvKey.isPrivate = true;
+    prvKey.isPublic = false;*/
+    /*var pubhex = keypair.ecpubhex; // hexadecimal string of EC public key
+    var prvhex = keypair.ecprvhex; */
+    publicPEM = KEYUTIL.getPEM(ec, 'PKCS8PUB');
     publicPEM = publicPEM.replace(/(\r\n|\n|\r)/gm, ""); // removing line breaks
-    privatePEM = KEYUTIL.getPEM(prvKey, 'PKCS8PRV');
+    privatePEM = KEYUTIL.getPEM(ec, 'PKCS8PRV');
+    //privatePEM = privatePEM.replace(/(\r\n|\n|\r)/gm, "");// removing line breaks
+
+    //var ec = new KJUR.crypto.ECDSA({'curve': 'secp256k1'});
+  
 }
 
 //get a string to be used as a salt

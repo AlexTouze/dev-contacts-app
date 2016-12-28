@@ -9,7 +9,7 @@ var status = STATUS_DISCONNECTED;
 
 
 function loadHypertyWebRTC() {
-    runtime.loadHyperty(hypertyURIC(domain, 'DTWebRTC')).then((hyperty) => {
+    RUNTIME.loadHyperty(hypertyURIC(domain, 'DTWebRTC')).then((hyperty) => {
        hypertyLoaded(hyperty);
     }).catch(function (err) {
 

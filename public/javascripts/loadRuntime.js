@@ -1,5 +1,5 @@
 /** Region Variables **/
-//var RUNTIME;
+var RUNTIME;
 var runtimeURL;
 var domain;
 
@@ -20,7 +20,7 @@ function registerDomain() {
         domain = data.replace(protomatch, '');
         runtimeURL = 'hyperty-catalogue://catalogue.' + domain + '.well-known/runtime/Runtime';
     }).done(function () {
-        //loadRuntime();
+        loadRuntime();
         loadHypertyWebRTC();
     });
 }

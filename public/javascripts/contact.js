@@ -113,15 +113,18 @@ function addContact(event) {
         }
     }
     console.log("userGUID", userGUID);
-    var test = JSON.stringify({data : dataJSONUser});
+    var test = JSON.stringify({ data: dataJSONUser });
     var oHeader = { alg: 'ES256', typ: 'JWT' };
     var sHeader = JSON.stringify(oHeader);
-    var sPayload = JSON.stringify(dataJSONUser);
-    
+    var base64Data = btoa(JSON.stringify(dataJSONUser));
+    var sPayload = JSON.stringify({
+        "data": base64Data
+    });
+
     var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
-    console.log(sPayload);
+    //console.log(sPayload);
     var path = '/guid/' + userGUID.guid;
-    var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, expire: timeout };
+    var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
 
     $.ajax({
         type: 'PUT',
