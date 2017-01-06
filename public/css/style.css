@@ -24,3 +24,17 @@ a {
   width: 10%;
   height: 80px;
 }
+@media (min-width: 768px) {
+  #login .modal-dialog {
+    width: 470px;
+  }
+}
+#login #AcceptLogin {
+  width: 100%;
+}
+#login input {
+  margin-bottom: 15px;
+}
+#login a:hover {
+  cursor: pointer;
+}

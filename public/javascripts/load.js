@@ -5,6 +5,7 @@ $(document).ready(function () {
 
     // Load domain Runtime or local 
     
+     $('#login').modal().show();
 
     /*=============================================================*/
 
@@ -15,6 +16,6 @@ $(document).ready(function () {
 
     // Add Contact event 
     addContactEvent();
-    setTimeout(loadreThink, 3000);
+    //setTimeout(loadreThink, 3000);
 
 });

@@ -52,15 +52,13 @@ router.put('/addcontact', function (req, res, next) {
     console.log(decoded.header);
     console.log(decoded.payload)
     console.log(decoded.signature);
+    var urlRequest =  req.body.url + req.body.path;
+    console.log(urlRequest);
     request(
       {
         method: 'PUT',
-        uri: req.body.url + req.body.path,
+        uri: urlRequest,
         port: '5002',
-        headers: {
-          'Content-Length': req.body.token.length,
-          'Content-Type': 'application/json'
-        },
         data: rToken
       },
       function (error, response, body) {

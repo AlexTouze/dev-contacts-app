@@ -49,7 +49,7 @@ function generateECDSA() {
     /*var pubhex = keypair.ecpubhex; // hexadecimal string of EC public key
     var prvhex = keypair.ecprvhex; */
     publicPEM = KEYUTIL.getPEM(ec, 'PKCS8PUB');
-    publicPEM = publicPEM.replace(/(\r\n|\n|\r)/gm, ""); // removing line breaks
+    //publicPEM = publicPEM.replace(/(\r\n|\n|\r)/gm, ""); // removing line breaks
     privatePEM = KEYUTIL.getPEM(ec, 'PKCS8PRV');
     //privatePEM = privatePEM.replace(/(\r\n|\n|\r)/gm, "");// removing line breaks
 

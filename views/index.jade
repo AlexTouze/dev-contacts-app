@@ -8,13 +8,13 @@ append styles
 	link(href='../css/navbar-fixed-top.css', rel='stylesheet')
 	link(href='../css/style.css', rel='stylesheet')
 	script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
-	script(src='/javascripts/contact.js')
 append scripts
 	script(src='../javascripts/load.js')
 	script(src='../javascripts/loadRuntime.js')
 	script(src='../javascripts/contact.js')
 	script(src='../javascripts/loadWebRTC.js')
 	script(src='../javascripts/loadConnector.js')
+	script(src='../javascripts/login.js')
 	script(src='../javascripts/guid/guid.js')
 	script(src='../javascripts/guid/bitcoinjs.min.js')
 	script(src='../javascripts/guid/bip39.js')
@@ -124,3 +124,18 @@ append body
 					.modal-footer
 						button(type="button" class="btn btn-secondary" data-dismiss="modal" id="rejectedCall") Reject
 						button(type="button" class="btn btn-primary" id="acceptedCall" data-dismiss="modal") Accept
+		.modal#login
+			.modal-dialog(role="document")
+				.modal-content
+					.modal-header
+						button.close(type="button" data-dismiss="modal" aria-label="Close")
+							span(aria-hidden="true") &times;
+						h3.modal-title Login to reThinkCall
+					.modal-body
+						form.form-signin
+							input#userLogin.form-control(type='email', placeholder='Email address', required='true', autofocus='')
+							input#userPwd.form-control(type='password', placeholder='Password', required='true')
+							button(type="button" class="btn btn-primary" data-dismiss="modal" id="AcceptLogin") Login
+					.modal-footer
+						a.register(onclick="registerUser()") Register 
+						a.forgot(onclick="forgotPwd()")  Forgot Password 
