@@ -1,6 +1,10 @@
 var privatePEM;
 var publicPEM;
 var salt;
+var PUBLICKEY_PREFIX = "-----BEGIN PUBLIC KEY-----\r\n";
+var PUBLICKEY_POSTFIX = "\r\n-----END PUBLIC KEY-----";
+var PRIVATEKEY_PREFIX = "-----BEGIN PRIVATE KEY-----\r\n";
+var PRIVATEKEY_POSTFIX = "\r\n-----END PRIVATE KEY-----";
 
 // generate a ECDSA key pair over curve secp256k1
 function generateECDSA() {
@@ -24,8 +28,10 @@ function generateECDSA() {
     var hY = ('0000000000' + biY.toString(16)).slice(- charlen);
     var hPub = '04' + hX + hY;
 
+
+
     // generate key pair objects
-    var prvKey = new KJUR.crypto.ECDSA({ 'curve': 'secp256k1' });
+   /* var prvKey = new KJUR.crypto.ECDSA({ 'curve': 'secp256k1' });
     prvKey.setPrivateKeyHex(hPrv);
     prvKey.isPrivate = true;
     prvKey.isPublic = false;
@@ -35,7 +41,12 @@ function generateECDSA() {
     pubKey.isPublic = true;
     publicPEM = KEYUTIL.getPEM(pubKey, 'PKCS8PUB');
     publicPEM = publicPEM.replace(/(\r\n|\n|\r)/gm, ""); // removing line breaks
-    privatePEM = KEYUTIL.getPEM(prvKey, 'PKCS8PRV');
+    privatePEM = KEYUTIL.getPEM(prvKey, 'PKCS8PRV');*/
+
+    var ec = new KJUR.crypto.ECDSA({ 'curve': 'secp256k1' });
+    var keypair = ec.generateKeyPairHex();
+    privatePEM = PRIVATEKEY_PREFIX + keypair.ecprvhex + PRIVATEKEY_POSTFIX;
+    publicPEM = PUBLICKEY_PREFIX + keypair.ecpubhex + PUBLICKEY_POSTFIX;
 }
 
 //get a string to be used as a salt
@@ -49,7 +60,7 @@ function generateSalt() {
 // generate GUID
 function generateGUID() {
 
-    if (!publicPEM || 0 === publicPEM.length)  generateECDSA();
+    if (!publicPEM || 0 === publicPEM.length) generateECDSA();
 
     if (!salt || 0 === salt.length) generateSalt();
 

@@ -25,6 +25,7 @@ var db = monk('127.0.0.1:27017/contactsDB');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var guidNode = require('./routes/guidNode');
 
 var app = express();
 
@@ -54,6 +55,7 @@ app.use(function (req, res, next) {
 
 app.use('/', routes);
 app.use('/users', users);
+app.use('/guidNode', guidNode);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

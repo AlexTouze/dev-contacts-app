@@ -31,7 +31,7 @@ router.post('/addcontact', function (req, res, next) {
 });
 
 router.put('/addcontact', function (req, res, next) {
-  //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
+  request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
   /*var source = fs.createWriteStream(req.body.jwt);
   console.log("soure", source);*/
   var currentUser = req.body;
@@ -43,18 +43,39 @@ router.put('/addcontact', function (req, res, next) {
     console.log(err);
   });*/
 
-  var signature = jws.sign({
+  /*var signature = jws.sign({
     header: { alg: 'ES256' },
     payload:  playload,
     secret: currentUser.privateKey,
-  });
+  });*/
 
 
   jwt.sign({
     data: playload
-  }, 'secret', { expiresIn: 60 * 60, algorithm: 'ES256' }, function (err, token) {
+  }, currentUser.privateKey, { algorithm: 'ES256' }, function (err, token) {
     console.log(err);
-    console.log(token);
+    var currentData = token;
+    request(
+      {
+        method: 'PUT',
+        uri: req.body.url + req.body.path,
+        port: '5002',
+        headers: {
+          'Content-Length': req.body.jwt.length,
+          'Content-Type': 'application/json'
+        },
+        data: currentData
+      },
+      function (error, response, body) {
+        if (response.statusCode != 200) {
+          console.log('error ' + response.statusCode)
+          console.log(JSON.stringify(req.body.jwt))
+        } else {
+          console.log('statusCode: ' + response.statusCode)
+          console.log(JSON.stringify(req.body.jwt))
+        }
+      }
+    )
   });
 
 
@@ -72,28 +93,27 @@ router.put('/addcontact', function (req, res, next) {
   });
  });*/
 
-  /*request(
+  request(
     {
       method: 'PUT',
-      //proxy: 'http://proxy.rd.francetelecom.fr:3128/',
       uri: req.body.url + req.body.path,
       port: '5002',
       headers: {
         'Content-Length': req.body.jwt.length,
         'Content-Type': 'application/json'
       },
-      data: JSON.stringify(req.body.jwt)
+      data: currentData
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
-        console.log('error '+ response.statusCode)
+        console.log('error ' + response.statusCode)
         console.log(JSON.stringify(req.body.jwt))
       } else {
         console.log('statusCode: ' + response.statusCode)
         console.log(JSON.stringify(req.body.jwt))
       }
     }
-  )*/
+  )
 
 
   /*request(

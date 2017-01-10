@@ -27,109 +27,122 @@ function addContact(event) {
     });
 
     var userGUID = generateGUID();
+    /*$.ajax({
+        type: 'GET',
+        url: '/guidNode/getGUID/'
+    }).done(function (data) {
+        if (!salt || 0 === salt.length) generateSalt();
+        privatePEM = data.private;
+        publicPEM = data.public;
+        var iterations = 10000;
+        var guidBitArray = sjcl.misc.pbkdf2(publicPEM, salt, iterations);
+        var guid = sjcl.codec.base64url.fromBits(guidBitArray);
 
-    var newUser = {
-        'firstname': $('#inputFirstName').val(),
-        'lastname': $("#inputLastName").val(),
-        'age': $("#inputAge").val(),
-        'guid': userGUID.guid,
-        'mail': $("#inputEmail").val()
-    }
-
-    $.each(contactsList, function () {
-        if (this.guid === newUser.guid) exist = true
-    });
-
-
-    // Check and make sure errorCount's still at zero
-    if (emptyInput === 0) {
-        if (!exist) {
-            $.ajax({
-                type: 'POST',
-                data: newUser,
-                url: '/users/addcontact/',
-                dataType: 'JSON'
-            }).done(function (response) {
-
-                // Check for successful (blank) response
-                if (response.msg === '') {
-                    // Clear the form inputs
-                    $(".form-signin")[0].reset();
-                    getContactList();
-                }
-                else {
-                    // If something goes wrong, alert the error message that our service returned
-                    alert('Error: ' + response.msg);
-                }
-            });
+        userGUID = { guid: guid, publicPEM: publicPEM, privatePEM: privatePEM, salt: salt };*/
 
 
+        var newUser = {
+            'firstname': $('#inputFirstName').val(),
+            'lastname': $("#inputLastName").val(),
+            'age': $("#inputAge").val(),
+            'guid': userGUID.guid,
+            'mail': $("#inputEmail").val()
         }
-        else {
-            alert('Error:  Guid already exists');
+
+        $.each(contactsList, function () {
+            if (this.guid === newUser.guid) exist = true
+        });
+
+
+        // Check and make sure errorCount's still at zero
+        if (emptyInput === 0) {
+            if (!exist) {
+                $.ajax({
+                    type: 'POST',
+                    data: newUser,
+                    url: '/users/addcontact/',
+                    dataType: 'JSON'
+                }).done(function (response) {
+
+                    // Check for successful (blank) response
+                    if (response.msg === '') {
+                        // Clear the form inputs
+                        $(".form-signin")[0].reset();
+                        getContactList();
+                    }
+                    else {
+                        // If something goes wrong, alert the error message that our service returned
+                        alert('Error: ' + response.msg);
+                    }
+                });
+
+
+            }
+            else {
+                alert('Error:  Guid already exists');
+            }
         }
-    }
 
 
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-    var yyyy = today.getFullYear();
-    var hours = today.getHours();
-    var min = today.getMinutes();
-    var sec = today.getSeconds();
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth() + 1; //January is 0!
+        var yyyy = today.getFullYear();
+        var hours = today.getHours();
+        var min = today.getMinutes();
+        var sec = today.getSeconds();
 
-    if (dd < 10) {
-        dd = '0' + dd
-    }
-
-    if (mm < 10) {
-        mm = '0' + mm
-    }
-    today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
-    var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
-
-    var dataJSONUser = {
-        "guid": userGUID.guid,
-        "schemaVersion": 1,
-        "userIDs": [{
-            "uid": "user://machin.goendoer.net/",
-            "domain": "google.com"
-        }, {
-            "uid": "user://bidule.com/fluffy123",
-            "domain": "google.com"
-        }],
-        "lastUpdate": today,
-        "timeout": timeout,
-        "publicKey": userGUID.publicPEM,
-        "salt": userGUID.salt,
-        "active": 1,
-        "revoked": 0,
-        "defaults": {
-            "voice": "a",
-            "chat": "b",
-            "video": "c"
+        if (dd < 10) {
+            dd = '0' + dd
         }
-    }
-    console.log("userGUID", userGUID);
-    var test = JSON.stringify({data : dataJSONUser});
-    var oHeader = { alg: 'ES256', typ: 'JWT' };
-    var sHeader = JSON.stringify(oHeader);
-    var sPayload = JSON.stringify(dataJSONUser);
-    
-    var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
-    console.log(sPayload);
-    var path = '/guid/' + userGUID.guid;
-    var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, expire: timeout };
 
-    $.ajax({
-        type: 'PUT',
-        url: '/users/addcontact/',
-        data: dataUser
-    }).done(function (response) {
-        console.log(response)
-    })
+        if (mm < 10) {
+            mm = '0' + mm
+        }
+        today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+        var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
 
+        var dataJSONUser = {
+            "guid": userGUID.guid,
+            "schemaVersion": 1,
+            "userIDs": [{
+                "uid": "user://machin.goendoer.net/",
+                "domain": "google.com"
+            }, {
+                "uid": "user://bidule.com/fluffy123",
+                "domain": "google.com"
+            }],
+            "lastUpdate": today,
+            "timeout": timeout,
+            "publicKey": userGUID.publicPEM,
+            "salt": userGUID.salt,
+            "active": 1,
+            "revoked": 0,
+            "defaults": {
+                "voice": "a",
+                "chat": "b",
+                "video": "c"
+            }
+        }
+        console.log("userGUID", userGUID);
+        var test = JSON.stringify({ data: dataJSONUser });
+        var oHeader = { alg: 'ES256', typ: 'JWT' };
+        var sHeader = JSON.stringify(oHeader);
+        var sPayload = JSON.stringify(dataJSONUser);
+
+        //var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
+        console.log(sPayload);
+        var path = '/guid/' + userGUID.guid;
+        var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, expire: timeout };
+
+        /*$.ajax({
+            type: 'PUT',
+            url: '/users/addcontact/',
+            data: dataUser
+        }).done(function (response) {
+            console.log(response)
+        })
+    })*/
 }
 
 function removeContact(event) {

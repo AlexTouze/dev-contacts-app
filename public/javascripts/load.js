@@ -15,5 +15,6 @@ $(document).ready(function () {
 
     // Add Contact event 
     addContactEvent();
+    
 
 });
