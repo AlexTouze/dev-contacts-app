@@ -81,3 +81,4 @@ function generateGUID() {
 
     return { guid: guid, publicPEM: publicPEM, privatePEM: privatePEM, salt: salt };
 }
+

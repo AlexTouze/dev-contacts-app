@@ -9,8 +9,8 @@ var jws = require('jws');
 var jwcrypto = require("browserid-crypto");
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
-var sjcl = require('sjcl');
 
+//https://scotch.io/tutorials/easy-node-authentication-google
 /*
  * GET userlist.
  */
@@ -137,18 +137,19 @@ router.put('/addcontact', function (req, res, next) {
 
 });
 
-router.put('/addcontactNodeJWT', function (req, res, next) {
+router.get('/getKeypair', function (req, res, next) {
 
   var currentUser = req.body;
+  //var sjcl = req.body.sjcl;
 
   jwcrypto.generateKeypair({
     algorithm: 'DSA',
     keysize: 160
   }, function(err, keypair) {
       // error in err?
-
+      res.send( { key: keypair })
       // serialize the public key
-      console.log(keypair.publicKey.serialize());
+      /*console.log(keypair.publicKey.serialize());
 
       // just the JSON object to embed in another structure
       console.log(JSON.stringify({stuff: keypair.publicKey.toSimpleObject()}));
@@ -182,7 +183,7 @@ router.put('/addcontactNodeJWT', function (req, res, next) {
       var storedSecretKey = keypair.secretKey.serialize();
 
       // also, if loading a secret key from somewhere
-      var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);
+      var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);*/
 
       
   });

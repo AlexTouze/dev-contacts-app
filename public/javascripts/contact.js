@@ -135,6 +135,15 @@ function addContact(event) {
         console.log(response)
     })
 
+    $.ajax({
+        type: 'GET',
+        url: '/users/getKeypair/',
+    }).done(function (response) {
+        console.log(response)
+    })
+
+
+
 }
 
 function removeContact(event) {
