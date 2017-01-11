@@ -16,14 +16,17 @@ var cors = require('cors');
 var mongo = require('mongodb');
 var monk = require('monk');
 
-var db = monk('localhost:27017/contactsDB');
-
 //Global registry
 var globlaRegistryUrl = ""
 
 //var db = monk('mongo.rethink3.orange-labs.fr/test');
 var db = monk('127.0.0.1:27017/contactsDB');
 
+//PassPort 
+var session = require('express-session');
+var flash    = require('connect-flash');
+
+var login = require('./routes/connect');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
@@ -54,7 +57,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use('/', routes);
+//Add passport 
+
+
+app.use('/', login);
+app.use('/home', routes)
 app.use('/users', users);
 
 // catch 404 and forward to error handler
@@ -88,5 +95,6 @@ app.use(function (err, req, res, next) {
   });
 });
 
+app.use(session({ secret: 'rethink', resave: true, saveUninitialized: true }));
 
 module.exports = app;

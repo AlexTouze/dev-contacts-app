@@ -6,6 +6,10 @@ var jwt = require('jsonwebtoken');
 var base64url = require('base64url');
 var fs = require('fs');
 var jws = require('jws');
+var jwcrypto = require("browserid-crypto");
+require("browserid-crypto/lib/algs/ds");
+jwcrypto.addEntropy('entropy');
+var sjcl = require('sjcl');
 
 /*
  * GET userlist.
@@ -31,10 +35,11 @@ router.post('/addcontact', function (req, res, next) {
 });
 
 router.put('/addcontact', function (req, res, next) {
-  //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
+  
   /*var source = fs.createWriteStream(req.body.jwt);
   console.log("soure", source);
   var playload = btoa(currentUser.sPayload)*/
+  //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
   var currentUser = req.body;
   var header = {
     "alg": "ES256",
@@ -44,22 +49,30 @@ router.put('/addcontact', function (req, res, next) {
   jwt.sign(currentUser.sPayload, currentUser.privateKey, { algorithm: 'ES256', header: { "alg": "ES256", "typ": "JWT" } }, function (err, token) {
     console.log(err);
     var rToken = token;
-    jwt.verify(rToken, currentUser.publickey, {algorithms: ['ES256']}, function(err, decoded) {
+    /*jwt.verify(rToken, currentUser.publickey, {algorithms: ['ES256']}, function(err, decoded) {
       console.log(decoded) // bar
       console.log(err)
-    });
-    var decoded = jwt.decode(rToken, { complete: true });
-    console.log(decoded.header);
-    console.log(decoded.payload)
-    console.log(decoded.signature);
+    });*/
+    /*var decoded = jwt.decode(rToken, { complete: true });
+    console.log("header -->", decoded.header);
+    console.log("payload -->", decoded.payload)
+    console.log("signature -->",decoded.signature);*/
     var urlRequest =  req.body.url + req.body.path;
     console.log(urlRequest);
+    console.log(currentUser.token);
+    console.log(currentUser.token.length);
+    //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
     request(
       {
+        proxy: 'http://proxy.rd.francetelecom.fr:3128/',
         method: 'PUT',
         uri: urlRequest,
         port: '5002',
-        data: rToken
+        headers: {
+            'Content-Length': currentUser.token.length,
+            'Content-Type': 'application/json'
+        },
+        body : currentUser.token
       },
       function (error, response, body) {
         if (response.statusCode != 200) {
@@ -123,6 +136,58 @@ router.put('/addcontact', function (req, res, next) {
   )*/
 
 });
+
+router.put('/addcontactNodeJWT', function (req, res, next) {
+
+  var currentUser = req.body;
+
+  jwcrypto.generateKeypair({
+    algorithm: 'DSA',
+    keysize: 160
+  }, function(err, keypair) {
+      // error in err?
+
+      // serialize the public key
+      console.log(keypair.publicKey.serialize());
+
+      // just the JSON object to embed in another structure
+      console.log(JSON.stringify({stuff: keypair.publicKey.toSimpleObject()}));
+
+      // replace this with the key to sign
+      var publicKeyToCertify = keypair.publicKey.serialize();
+
+      // create and sign a JWS
+      var payload = {principal: {email: 'some@dude.domain'},
+                    pubkey: jwcrypto.loadPublicKey(publicKeyToCertify)};
+
+      jwcrypto.sign(payload, keypair.secretKey, function(err, jws) {
+          // error in err?
+
+          // serialize it
+          console.log(jws.toString());
+
+          // replace with things to verify
+          var signedObject = jws;
+          var publicKey = keypair.publicKey;
+
+          // verify it
+          jwcrypto.verify(signedObject, publicKey, function(err, payload) {
+            // if verification fails, then err tells you why
+            // if verification succeeds, err is null, and payload is
+            // the signed JS object.
+          });
+      });
+
+      // replace this with the key to load
+      var storedSecretKey = keypair.secretKey.serialize();
+
+      // also, if loading a secret key from somewhere
+      var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);
+
+      
+  });
+
+})
 
 /*
  * DELETE to deleteuser.

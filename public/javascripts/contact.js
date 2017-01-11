@@ -1,5 +1,6 @@
 var contactsList = [];
 var url = 'http://130.149.22.133:5002';
+var urlOrange = 'http://161.106.2.23:5002';
 var port = '5002'
 
 
@@ -124,11 +125,11 @@ function addContact(event) {
     var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
     //console.log(sPayload);
     var path = '/guid/' + userGUID.guid;
-    var dataUser = { url: url, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
+    var dataUser = { url: urlOrange, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
 
     $.ajax({
         type: 'PUT',
-        url: '/users/addcontact/',
+        url: '/users/addcontactNodeJWT/',
         data: dataUser
     }).done(function (response) {
         console.log(response)

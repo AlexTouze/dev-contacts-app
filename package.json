@@ -20,6 +20,13 @@
     "request" : "*",
     "hoek" : "4.1.0",
     "jsonwebtoken": "~7.1.x",
-    "base64url": "2.0.0"
+    "base64url": "2.0.0",
+    "passport": "0.3.2",
+    "passport-local" : "*",
+    "passport-google-oauth" : "*",
+    "connect-flash" : "~0.1.1",     
+    "bcrypt-nodejs" : "latest",
+    "method-override": "2.3.7",
+    "express-session": "1.14.2"     
   }
 }
