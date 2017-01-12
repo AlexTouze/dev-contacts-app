@@ -92,28 +92,29 @@ function addContact(event) {
     var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
 
     var dataJSONUser = {
-        "guid": userGUID.guid,
-        "schemaVersion": 1,
-        "userIDs": [{
-            "uid": "user://machin.goendoer.net/",
-            "domain": "google.com"
-        }, {
-            "uid": "user://bidule.com/fluffy123",
-            "domain": "google.com"
+        guid: null,
+        schemaVersion: 1,
+        userIDs: [{
+            uid: "user://machin.goendoer.net/",
+            domain: "google.com"
+        },
+        {
+            uid: "user://bidule.com/fluffy123",
+            domain: "google.com"
         }],
-        "lastUpdate": today,
-        "timeout": timeout,
-        "publicKey": userGUID.publicPEM,
-        "salt": userGUID.salt,
-        "active": 1,
-        "revoked": 0,
-        "defaults": {
-            "voice": "a",
-            "chat": "b",
-            "video": "c"
+        lastUpdate: today,
+        timeout: timeout,
+        publicKey: null,
+        salt: null,
+        active: 1,
+        revoked: 0,
+        defaults: {
+            voice: "a",
+            chat: "b",
+            video: "c"
         }
     }
-    console.log("userGUID", userGUID);
+    /*console.log("userGUID", userGUID);
     var test = JSON.stringify({ data: dataJSONUser });
     var oHeader = { alg: 'ES256', typ: 'JWT' };
     var sHeader = JSON.stringify(oHeader);
@@ -125,7 +126,7 @@ function addContact(event) {
     var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
     //console.log(sPayload);
     var path = '/guid/' + userGUID.guid;
-    var dataUser = { url: urlOrange, port: port, path, sHeader: sHeader, sPayload: sPayload, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
+    var dataUser = { url: urlOrange, port: port, path, sHeader: sHeader, sPayload: test, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
 
     $.ajax({
         type: 'PUT',
@@ -133,11 +134,12 @@ function addContact(event) {
         data: dataUser
     }).done(function (response) {
         console.log(response)
-    })
+    })*/
 
     $.ajax({
-        type: 'GET',
+        type: 'POST',
         url: '/users/getKeypair/',
+        data: JSON.stringify(dataJSONUser)
     }).done(function (response) {
         console.log(response)
     })

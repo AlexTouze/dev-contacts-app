@@ -27,6 +27,10 @@
     "connect-flash" : "~0.1.1",     
     "bcrypt-nodejs" : "latest",
     "method-override": "2.3.7",
-    "express-session": "1.14.2"     
+    "express-session": "1.14.2", 
+    "sjcl": "1.0.6",
+    "browserid-crypto": "0.9.0",
+    "bip39": "2.2.0", 
+    "btoa": "1.1.2"
   }
 }

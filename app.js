@@ -26,6 +26,7 @@ var db = monk('127.0.0.1:27017/contactsDB');
 var session = require('express-session');
 var flash    = require('connect-flash');
 
+//routes
 var login = require('./routes/connect');
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -61,6 +62,8 @@ app.use(function (req, res, next) {
 
 
 app.use('/', login);
+app.use('/login', login);
+app.use('/signup', login);
 app.use('/home', routes)
 app.use('/users', users);
 

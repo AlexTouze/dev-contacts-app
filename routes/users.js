@@ -4,9 +4,12 @@ var debug = require('debug')('users');
 var request = require('request');
 var jwt = require('jsonwebtoken');
 var base64url = require('base64url');
+var btoa = require("btoa");
 var fs = require('fs');
 var jws = require('jws');
 var jwcrypto = require("browserid-crypto");
+var sjcl = require("sjcl");
+var bip39 = require('bip39')
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
 
@@ -35,7 +38,7 @@ router.post('/addcontact', function (req, res, next) {
 });
 
 router.put('/addcontact', function (req, res, next) {
-  
+
   /*var source = fs.createWriteStream(req.body.jwt);
   console.log("soure", source);
   var playload = btoa(currentUser.sPayload)*/
@@ -57,7 +60,7 @@ router.put('/addcontact', function (req, res, next) {
     console.log("header -->", decoded.header);
     console.log("payload -->", decoded.payload)
     console.log("signature -->",decoded.signature);*/
-    var urlRequest =  req.body.url + req.body.path;
+    var urlRequest = req.body.url + req.body.path;
     console.log(urlRequest);
     console.log(currentUser.token);
     console.log(currentUser.token.length);
@@ -69,10 +72,10 @@ router.put('/addcontact', function (req, res, next) {
         uri: urlRequest,
         port: '5002',
         headers: {
-            'Content-Length': currentUser.token.length,
-            'Content-Type': 'application/json'
+          'Content-Length': currentUser.token.length,
+          'Content-Type': 'application/json'
         },
-        body : currentUser.token
+        body: currentUser.token
       },
       function (error, response, body) {
         if (response.statusCode != 200) {
@@ -137,55 +140,88 @@ router.put('/addcontact', function (req, res, next) {
 
 });
 
-router.get('/getKeypair', function (req, res, next) {
+router.post('/getKeypair', function (req, res, next) {
 
-  var currentUser = req.body;
-  //var sjcl = req.body.sjcl;
+  //var currentUser = JSON.stringify(req.body);
+
 
   jwcrypto.generateKeypair({
     algorithm: 'DSA',
     keysize: 160
-  }, function(err, keypair) {
-      // error in err?
-      res.send( { key: keypair })
-      // serialize the public key
-      /*console.log(keypair.publicKey.serialize());
+  }, function (err, keypair) {
+    // error in err?
 
-      // just the JSON object to embed in another structure
-      console.log(JSON.stringify({stuff: keypair.publicKey.toSimpleObject()}));
+    var publicKey = keypair.publicKey.serialize();
+    var salt = generateSalt();
+    var guid = generateGUID(keypair.publicKey, salt);
 
-      // replace this with the key to sign
-      var publicKeyToCertify = keypair.publicKey.serialize();
+    // serialize the public key
+    console.log(keypair.publicKey.serialize());
 
-      // create and sign a JWS
-      var payload = {principal: {email: 'some@dude.domain'},
-                    pubkey: jwcrypto.loadPublicKey(publicKeyToCertify)};
+    // just the JSON object to embed in another structure
+    console.log(JSON.stringify({ stuff: keypair.publicKey.toSimpleObject() }));
 
-      jwcrypto.sign(payload, keypair.secretKey, function(err, jws) {
-          // error in err?
+    // replace this with the key to sign
+    var publicKeyToCertify = keypair.publicKey.serialize();
 
-          // serialize it
-          console.log(jws.toString());
+    var timeout = getTimeOut();
 
-          // replace with things to verify
-          var signedObject = jws;
-          var publicKey = keypair.publicKey;
+    var dataJSONUser = {
+      guid: guid,
+      schemaVersion: 1,
+      userIDs: [{
+        uid: "user://machin.goendoer.net/",
+        domain: "google.com"
+      },
+      {
+        uid: "user://bidule.com/fluffy123",
+        domain: "google.com"
+      }],
+      lastUpdate: timeout.today,
+      timeout: timeout.timeout,
+      publicKey: publicKey,
+      salt: salt,
+      active: 1,
+      revoked: 0,
+      defaults: {
+        voice: "a",
+        chat: "b",
+        video: "c"
+      }
+    }
 
-          // verify it
-          jwcrypto.verify(signedObject, publicKey, function(err, payload) {
-            // if verification fails, then err tells you why
-            // if verification succeeds, err is null, and payload is
-            // the signed JS object.
-          });
-      });
+    // create and sign a JWS
+    var base64Data = btoa(JSON.stringify(dataJSONUser));
+    var payload = JSON.stringify({
+      "data": base64Data
+    });
 
-      // replace this with the key to load
-      var storedSecretKey = keypair.secretKey.serialize();
+    console.log(payload);
+    jwcrypto.sign(payload, keypair.secretKey, function(err, jws) {
+        // error in err?
 
-      // also, if loading a secret key from somewhere
-      var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);*/
+        // serialize it
+        console.log(jws.toString());
 
-      
+        // replace with things to verify
+        var signedObject = jws;
+        var publicKey = keypair.publicKey;
+
+        // verify it
+        jwcrypto.verify(signedObject, publicKey, function(err, payload) {
+          // if verification fails, then err tells you why
+          // if verification succeeds, err is null, and payload is
+          // the signed JS object.
+        });
+    });
+
+    // replace this with the key to load
+    var storedSecretKey = keypair.secretKey.serialize();
+
+    // also, if loading a secret key from somewhere
+    var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);
+
+
   });
 
 })
@@ -201,6 +237,46 @@ router.delete('/removecontact/:id', function (req, res) {
     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
   });
 });
+
+
+//get a string to be used as a salt
+function generateSalt() {
+  var saltWord = bip39.generateMnemonic(8);
+  var saltHashedBitArray = sjcl.hash.sha256.hash(saltWord);
+  var salt = sjcl.codec.base64.fromBits(saltHashedBitArray);
+  return salt;
+}
+
+// generate GUID
+function generateGUID(publicPEM, salt) {
+  var iterations = 10000;
+  var guidBitArray = sjcl.misc.pbkdf2(publicPEM, salt, iterations);
+  var guid = sjcl.codec.base64url.fromBits(guidBitArray);
+
+  return guid;
+}
+
+function getTimeOut() {
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth() + 1; //January is 0!
+  var yyyy = today.getFullYear();
+  var hours = today.getHours();
+  var min = today.getMinutes();
+  var sec = today.getSeconds();
+
+  if (dd < 10) {
+    dd = '0' + dd
+  }
+
+  if (mm < 10) {
+    mm = '0' + mm
+  }
+  today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+  var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+
+  return { today: today, timeout: timeout }
+}
 
 
 module.exports = router;
