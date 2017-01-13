@@ -3,7 +3,8 @@ var passport = require('passport');
 var router = express.Router();
 
 router.get('/', function (req, res, next) {
-  res.render('login', { title: req.title, domain: req.currentDomain });
+  res.render('login');
+  res.render
 });
 
 router.get('/login', function (req, res, next) {

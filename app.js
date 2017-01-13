@@ -15,20 +15,23 @@ var cors = require('cors');
 // Database
 var mongo = require('mongodb');
 var monk = require('monk');
+var mongoose = require('mongoose');
+var configAPP = require('./config/configapp.js');
 
 //Global registry
 var globlaRegistryUrl = ""
 
 //var db = monk('mongo.rethink3.orange-labs.fr/test');
-var db = monk('127.0.0.1:27017/contactsDB');
+var db = monk(configAPP.contactDB);
+mongoose.connect(configAPP.url);
 
 //PassPort 
 var session = require('express-session');
 var flash    = require('connect-flash');
 
 //routes
-var login = require('./routes/connect');
-var routes = require('./routes/index');
+var connect = require('./routes/connect');
+var home = require('./routes/home');
 var users = require('./routes/users');
 
 var app = express();
@@ -61,10 +64,10 @@ app.use(function (req, res, next) {
 //Add passport 
 
 
-app.use('/', login);
-app.use('/login', login);
-app.use('/signup', login);
-app.use('/home', routes)
+app.use('/', connect);
+app.use('/login', connect);
+app.use('/signup', connect);
+app.use('/home', home)
 app.use('/users', users);
 
 // catch 404 and forward to error handler
