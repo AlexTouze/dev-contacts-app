@@ -11,11 +11,12 @@ var debug = require('debug')('http')
   , http = require('http')
   , name = 'dev-contacts-app';
 var cors = require('cors');
+var GraphConnector = require("./globalRegistryNode/GraphConnector")
 
 // Database
 var mongo = require('mongodb');
 var monk = require('monk');
-var mongoose = require('mongoose');
+//var mongoose = require('mongoose');
 var configAPP = require('./config/configapp.js');
 
 //Global registry
@@ -23,7 +24,7 @@ var globlaRegistryUrl = ""
 
 //var db = monk('mongo.rethink3.orange-labs.fr/test');
 var db = monk(configAPP.contactDB);
-mongoose.connect(configAPP.url);
+//mongoose.connect(configAPP.url);
 
 //PassPort 
 var session = require('express-session');
@@ -33,6 +34,7 @@ var flash    = require('connect-flash');
 var connect = require('./routes/connect');
 var home = require('./routes/home');
 var users = require('./routes/users');
+//var graph = require('./globalRegistryNode/GraphConnector');
 
 var app = express();
 
@@ -47,7 +49,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, '/public/globalRegistryNode')));
 
 app.use(function (req, res, next) {
   req.db = db;
@@ -69,6 +72,7 @@ app.use('/login', connect);
 app.use('/signup', connect);
 app.use('/home', home)
 app.use('/users', users);
+//app.use('/users', graph);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

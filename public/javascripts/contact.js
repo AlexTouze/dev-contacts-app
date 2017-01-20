@@ -28,13 +28,17 @@ function addContact(event) {
         if ($(this).val() === '') { emptyInput++; }
     });
 
-    var userGUID = generateGUID();
+    var currentGraphConnector = getGraphConnector();
+    currentGraphConnector.generateGUID();
+    currentGraphConnector.globalRegistryRecord.userIDs.push({ uid: "user://machin.goendoer.net/", domain: "google.com" }, { uid: "user://bidule.com/fluffy123", domain: "google.com" });
+    currentGraphConnector.globalRegistryRecord.defaults.push({ voice: "a", chat: "b", video: "c" })
+    var token = currentGraphConnector.signGlobalRegistryRecord();
 
-    var newUser = {
+    /*var newUser = {
         'firstname': $('#inputFirstName').val(),
         'lastname': $("#inputLastName").val(),
         'age': $("#inputAge").val(),
-        'guid': userGUID.guid,
+        'guid': currentGraphConnector.globalRegistryRecord.guid,
         'mail': $("#inputEmail").val()
     }
 
@@ -70,50 +74,11 @@ function addContact(event) {
         else {
             alert('Error:  Guid already exists');
         }
-    }
+    }*/
 
 
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-    var yyyy = today.getFullYear();
-    var hours = today.getHours();
-    var min = today.getMinutes();
-    var sec = today.getSeconds();
 
-    if (dd < 10) {
-        dd = '0' + dd
-    }
-
-    if (mm < 10) {
-        mm = '0' + mm
-    }
-    today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
-    var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
-
-    var dataJSONUser = {
-        guid: null,
-        schemaVersion: 1,
-        userIDs: [{
-            uid: "user://machin.goendoer.net/",
-            domain: "google.com"
-        },
-        {
-            uid: "user://bidule.com/fluffy123",
-            domain: "google.com"
-        }],
-        lastUpdate: today,
-        timeout: timeout,
-        publicKey: null,
-        salt: null,
-        active: 1,
-        revoked: 0,
-        defaults: {
-            voice: "a",
-            chat: "b",
-            video: "c"
-        }
-    }
+    //currentGraphConnector.signGlobalRegistryRecord();
     /*console.log("userGUID", userGUID);
     var test = JSON.stringify({ data: dataJSONUser });
     var oHeader = { alg: 'ES256', typ: 'JWT' };
@@ -127,24 +92,18 @@ function addContact(event) {
     //console.log(sPayload);
     var path = '/guid/' + userGUID.guid;
     var dataUser = { url: urlOrange, port: port, path, sHeader: sHeader, sPayload: test, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
+    */  
+
+    var urlRequest =  urlOrange + '/guid/' + currentGraphConnector.globalRegistryRecord.guid;
+
 
     $.ajax({
         type: 'PUT',
-        url: '/users/addcontactNodeJWT/',
-        data: dataUser
-    }).done(function (response) {
-        console.log(response)
-    })*/
-
-    $.ajax({
-        type: 'POST',
-        url: '/users/getKeypair/',
-        data: JSON.stringify(dataJSONUser)
+        url: '/users/addcontact/',
+        data: {token: token, urlRequest: urlRequest }
     }).done(function (response) {
         console.log(response)
     })
-
-
 
 }
 
