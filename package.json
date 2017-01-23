@@ -14,7 +14,6 @@
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0",
     "mongodb": "2.2.20",
-    "monk": "3.1.3",
     "jade-bootstrap":"*",
     "cors" :"*",
     "request" : "*",
@@ -31,6 +30,7 @@
     "sjcl": "1.0.6",
     "browserid-crypto": "0.9.0",
     "bip39": "2.2.0", 
-    "btoa": "1.1.2"
+    "btoa": "1.1.2", 
+    "mongoose":"*"
   }
 }

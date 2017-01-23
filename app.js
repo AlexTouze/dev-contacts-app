@@ -13,17 +13,12 @@ var debug = require('debug')('http')
 var cors = require('cors');
 
 // Database
-var mongo = require('mongodb');
-var monk = require('monk');
 var mongoose = require('mongoose');
 var configAPP = require('./config/configapp.js');
+mongoose.connect(configAPP.url);
 
 //Global registry
 var globlaRegistryUrl = ""
-
-//var db = monk('mongo.rethink3.orange-labs.fr/test');
-var db = monk(configAPP.contactDB);
-mongoose.connect(configAPP.url);
 
 //PassPort 
 var session = require('express-session');
@@ -50,7 +45,6 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function (req, res, next) {
-  req.db = db;
   req.globalRegistry = globlaRegistryUrl;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";

@@ -12,16 +12,21 @@ var sjcl = require("sjcl");
 var bip39 = require('bip39')
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
+var User = require('../models/userApp');
 
 //https://scotch.io/tutorials/easy-node-authentication-google
 /*
  * GET userlist.
  */
 router.get('/getcontactlists', function (req, res, next) {
-  var db = req.db;
-  var collection = db.get('contactlist');
-  collection.find({}, {}, function (e, docs) {
-    res.json(docs);
+  User.find({}, function (err, users) {
+    var userMap = {};
+
+    users.forEach(function (user) {
+      userMap[user._id] = user;
+    });
+
+    res.json(userMap);
   });
 });
 
@@ -30,12 +35,31 @@ router.get('/getcontactlists', function (req, res, next) {
  */
 router.post('/addcontact', function (req, res, next) {
   var db = req.db;
-  db.collection('contactlist').insert(req.body, function (err, result) {
-    res.send(
-      (err === null) ? { msg: '' } : { msg: err }
-    );
+  var newUser = new User();
+  newUser.contactlist.mail = req.body.mail;
+  newUser.contactlist.password = req.body.password;
+  newUser.contactlist.firstname = req.body.firstname;
+  newUser.contactlist.lastname = req.body.lastname;
+  newUser.contactlist.age = req.body.age;
+  newUser.contactlist.guid = req.body.guid;
+  // save the user
+
+  newUser.save(function (err) {
+    res.send((err === null) ? { msg: '' } : { msg: err });
+  });
+
+});
+
+/*
+ * DELETE to deleteuser.
+ */
+router.delete('/removecontact/:id', function (req, res) {
+  var userToDelete = req.params.id;
+  User.findByIdAndRemove(userToDelete, function (err) {  
+    res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
   });
 });
+
 
 router.put('/addcontact', function (req, res, next) {
 
@@ -197,22 +221,22 @@ router.post('/getKeypair', function (req, res, next) {
     });
 
     console.log(payload);
-    jwcrypto.sign(payload, keypair.secretKey, function(err, jws) {
-        // error in err?
+    jwcrypto.sign(payload, keypair.secretKey, function (err, jws) {
+      // error in err?
 
-        // serialize it
-        console.log(jws.toString());
+      // serialize it
+      console.log(jws.toString());
 
-        // replace with things to verify
-        var signedObject = jws;
-        var publicKey = keypair.publicKey;
+      // replace with things to verify
+      var signedObject = jws;
+      var publicKey = keypair.publicKey;
 
-        // verify it
-        jwcrypto.verify(signedObject, publicKey, function(err, payload) {
-          // if verification fails, then err tells you why
-          // if verification succeeds, err is null, and payload is
-          // the signed JS object.
-        });
+      // verify it
+      jwcrypto.verify(signedObject, publicKey, function (err, payload) {
+        // if verification fails, then err tells you why
+        // if verification succeeds, err is null, and payload is
+        // the signed JS object.
+      });
     });
 
     // replace this with the key to load
@@ -226,17 +250,6 @@ router.post('/getKeypair', function (req, res, next) {
 
 })
 
-/*
- * DELETE to deleteuser.
- */
-router.delete('/removecontact/:id', function (req, res) {
-  var db = req.db;
-  var collection = db.get('contactlist');
-  var userToDelete = req.params.id;
-  collection.remove({ '_id': userToDelete }, function (err) {
-    res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
-  });
-});
 
 
 //get a string to be used as a salt

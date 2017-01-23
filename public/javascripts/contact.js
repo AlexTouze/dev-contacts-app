@@ -136,13 +136,13 @@ function addContact(event) {
         console.log(response)
     })*/
 
-    $.ajax({
+    /*$.ajax({
         type: 'POST',
         url: '/users/getKeypair/',
         data: JSON.stringify(dataJSONUser)
     }).done(function (response) {
         console.log(response)
-    })
+    })*/
 
 
 
@@ -177,15 +177,14 @@ function getContactList() {
 
         // Stick our user data array into a userlist variable in the global object
         contactsList = data;
-
         $.each(data, function () {
             tableContent += '<tr>';
-            tableContent += '<td>' + this.firstname + ' ' + this.lastname + '</td>';
-            tableContent += '<td>' + this.mail + '</td>';
-            tableContent += '<td>' + this.age + '</td>';
-            tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.guid + '">Info</button></td>';
+            tableContent += '<td>' + this.contactlist.firstname + ' ' + this.contactlist.lastname + '</td>';
+            tableContent += '<td>' + this.contactlist.mail + '</td>';
+            tableContent += '<td>' + this.contactlist.age + '</td>';
+            tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.contactlist.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
-            tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" rel="' + this.mail + '" >call</button></td>';
+            tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" rel="' + this.contactlist.mail + '" >call</button></td>';
             tableContent += '</tr>';
         });
 
@@ -217,7 +216,7 @@ function contactInfo(event) {
     var thisContact;
 
     $.each(contactsList, function () {
-        if (this.guid === thisGuid) thisContact = this
+        if (this.contactlist.guid === thisGuid) thisContact = this.contactlist
     });
 
     console.log(thisContact);
