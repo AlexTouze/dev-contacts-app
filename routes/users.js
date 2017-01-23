@@ -9,7 +9,7 @@ var fs = require('fs');
 var jws = require('jws');
 var jwcrypto = require("browserid-crypto");
 var sjcl = require("sjcl");
-var bip39 = require('bip39')
+var bip39 = require('bip39');
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
 var User = require('../models/userApp');
@@ -63,192 +63,35 @@ router.delete('/removecontact/:id', function (req, res) {
 
 router.put('/addcontact', function (req, res, next) {
 
-  /*var source = fs.createWriteStream(req.body.jwt);
-  console.log("soure", source);
-  var playload = btoa(currentUser.sPayload)*/
   //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
-  var currentUser = req.body;
-  var header = {
-    "alg": "ES256",
-    "typ": "JWT"
-  }
-
-  jwt.sign(currentUser.sPayload, currentUser.privateKey, { algorithm: 'ES256', header: { "alg": "ES256", "typ": "JWT" } }, function (err, token) {
-    console.log(err);
-    var rToken = token;
-    /*jwt.verify(rToken, currentUser.publickey, {algorithms: ['ES256']}, function(err, decoded) {
-      console.log(decoded) // bar
-      console.log(err)
-    });*/
-    /*var decoded = jwt.decode(rToken, { complete: true });
-    console.log("header -->", decoded.header);
-    console.log("payload -->", decoded.payload)
-    console.log("signature -->",decoded.signature);*/
-    var urlRequest = req.body.url + req.body.path;
-    console.log(urlRequest);
-    console.log(currentUser.token);
-    console.log(currentUser.token.length);
-    //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
-    request(
-      {
-        proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-        method: 'PUT',
-        uri: urlRequest,
-        port: '5002',
-        headers: {
-          'Content-Length': currentUser.token.length,
-          'Content-Type': 'application/json'
-        },
-        body: currentUser.token
-      },
-      function (error, response, body) {
-        if (response.statusCode != 200) {
-          console.log('error ' + response.statusCode)
-          console.log(JSON.stringify(req.body.token))
-        } else {
-          console.log('statusCode: ' + response.statusCode)
-          console.log(JSON.stringify(req.body.token))
-        }
-      }
-    )
-
-  });
-
-  /*var signature = jws.sign({
-    header: { alg: 'ES256' },
-    payload: playload,
-    secret: currentUser.privateKey,
-  });
-
-
-  jwt.sign({
-    data: playload
-  }, 'secret', { expiresIn: 60 * 60, algorithm: 'ES256' }, function (err, token) {
-    console.log(err);
-    console.log(token);
-  });*/
-
-
-  /*jwt.sign({
-    data: currentUser.sPayload
-  }, currentUser.privateKey, { expiresIn: 60 * 60, algorithm: 'ES256', header: currentUser.sHeader }, function (err, token) {
-    console.log(token);
-    console.log(err);
-  });*/
-  /*   var b = jwt.sign({
-    data: currentUser.sPayload
-  }, currentUser.privateKey, { expiresIn: 60 * 60, algorithm: 'RS256', header: currentUser.sHeader }, function (err, token) {
-    console.log(token);
-    console.log(err);
-  });
- });*/
-
-
-
-
-  /*request(
+  var token = req.body.token;
+  var urlRequest = req.body.urlRequest;
+  /*var token = signGlobalRegistryRecord(record);*/
+  console.log(token);
+  //var a = new GraphConnector();
+  
+  request(
     {
-      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-      url: req.body.url,
+      method: 'PUT',
+      uri: urlRequest,
       port: '5002',
-      method: 'GET'
+      headers: {
+        'Content-Length': token.length,
+        'Content-Type': 'application/json'
+      },
+      body: token
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
-        console.log('document saved as: http://proxy.rd.francetelecom.fr:3128/')
+        console.log('error ' + response.statusCode)
+        console.log(JSON.stringify(req.body.token))
       } else {
-        console.log('response: ' + JSON.stringify(body))
+        console.log('statusCode: ' + response.statusCode)
+        console.log(JSON.stringify(req.body.token))
       }
     }
-  )*/
-
+  )
 });
-
-router.post('/getKeypair', function (req, res, next) {
-
-  //var currentUser = JSON.stringify(req.body);
-
-
-  jwcrypto.generateKeypair({
-    algorithm: 'DSA',
-    keysize: 160
-  }, function (err, keypair) {
-    // error in err?
-
-    var publicKey = keypair.publicKey.serialize();
-    var salt = generateSalt();
-    var guid = generateGUID(keypair.publicKey, salt);
-
-    // serialize the public key
-    console.log(keypair.publicKey.serialize());
-
-    // just the JSON object to embed in another structure
-    console.log(JSON.stringify({ stuff: keypair.publicKey.toSimpleObject() }));
-
-    // replace this with the key to sign
-    var publicKeyToCertify = keypair.publicKey.serialize();
-
-    var timeout = getTimeOut();
-
-    var dataJSONUser = {
-      guid: guid,
-      schemaVersion: 1,
-      userIDs: [{
-        uid: "user://machin.goendoer.net/",
-        domain: "google.com"
-      },
-      {
-        uid: "user://bidule.com/fluffy123",
-        domain: "google.com"
-      }],
-      lastUpdate: timeout.today,
-      timeout: timeout.timeout,
-      publicKey: publicKey,
-      salt: salt,
-      active: 1,
-      revoked: 0,
-      defaults: {
-        voice: "a",
-        chat: "b",
-        video: "c"
-      }
-    }
-
-    // create and sign a JWS
-    var base64Data = btoa(JSON.stringify(dataJSONUser));
-    var payload = JSON.stringify({
-      "data": base64Data
-    });
-
-    console.log(payload);
-    jwcrypto.sign(payload, keypair.secretKey, function (err, jws) {
-      // error in err?
-
-      // serialize it
-      console.log(jws.toString());
-
-      // replace with things to verify
-      var signedObject = jws;
-      var publicKey = keypair.publicKey;
-
-      // verify it
-      jwcrypto.verify(signedObject, publicKey, function (err, payload) {
-        // if verification fails, then err tells you why
-        // if verification succeeds, err is null, and payload is
-        // the signed JS object.
-      });
-    });
-
-    // replace this with the key to load
-    var storedSecretKey = keypair.secretKey.serialize();
-
-    // also, if loading a secret key from somewhere
-    var otherSecretKey = jwcrypto.loadSecretKey(storedSecretKey);
-
-
-  });
-
-})
 
 
 
@@ -269,27 +112,77 @@ function generateGUID(publicPEM, salt) {
   return guid;
 }
 
-function getTimeOut() {
-  var today = new Date();
-  var dd = today.getDate();
-  var mm = today.getMonth() + 1; //January is 0!
-  var yyyy = today.getFullYear();
-  var hours = today.getHours();
-  var min = today.getMinutes();
-  var sec = today.getSeconds();
 
-  if (dd < 10) {
-    dd = '0' + dd
-  }
+/**
+ * Generates a public/private key pair from a given mnemonic (16 words).
+ * Expects a string containing 16 words seperated by single spaces.
+ * Retrieves data from the Global Registry.
+ * @param  {string}     mnemonicAndSalt     A string of 16 words.
+ * @returns  {Promise}  Promise          Global Registry Record.
+ */
+/*useGUID(mnemonicAndSalt) {
+  // TODO: check if format is correct and if all words are from bip39 english wordlist
+  var lastIndex = mnemonicAndSalt.lastIndexOf(' ');
+  var mnemonic = mnemonicAndSalt.substring(0, lastIndex);
+  var saltWord = mnemonicAndSalt.substring(lastIndex + 1, mnemonicAndSalt.length);
+  this._createKeys(mnemonic, saltWord);
 
-  if (mm < 10) {
-    mm = '0' + mm
-  }
-  today = yyyy + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
-  var timeout = yyyy + 10 + '-' + mm + '-' + dd + 'T' + hours + ':' + min + ':' + sec + '+00:00';
+  var _this = this;
 
-  return { today: today, timeout: timeout }
-}
+  // retrieve current info from Global Registry and fill this.globalRegistryRecord
+  var msg = {
+    type: 'READ',
+    from: this._hypertyRuntimeURL + '/graph-connector',
+    to: 'global://registry/',
+    body: { guid: this.globalRegistryRecord.guid }
+  };
+
+  return new Promise(function(resolve, reject) {
+
+    if (_this.messageBus === undefined) {
+      reject('MessageBus not found on GraphConnector');
+    } else {
+
+      _this.messageBus.postMessage(msg, (reply) => {
+
+        // reply should be the JSON returned from the Global Registry REST-interface
+        var jwt = reply.body.data;
+        var unwrappedJWT = KJUR.jws.JWS.parse(reply.body.data);
+        var dataEncoded = unwrappedJWT.payloadObj.data;
+        var dataDecoded = base64url.decode(dataEncoded);
+        var dataJSON = JSON.parse(dataDecoded);
+
+        // public key should match
+        var sameKey = (dataJSON.publicKey == _this.globalRegistryRecord.publicKey);
+        if (!sameKey) {
+          reject('Retrieved key does not match!');
+        } else {
+          var publicKeyObject = jsrsasign.KEYUTIL.getKey(dataJSON.publicKey);
+          var encodedString = jwt.split('.').slice(0, 2).join('.');
+          var sigValueHex = unwrappedJWT.sigHex;
+          var sig = new KJUR.crypto.Signature({alg: 'SHA256withECDSA'});
+          sig.init(publicKeyObject);
+          sig.updateString(encodedString);
+          var isValid = sig.verify(sigValueHex);
+
+          if (!isValid) {
+            reject('Retrieved Record not valid!');
+          } else {
+            if (typeof dataJSON.userIDs != 'undefined' && dataJSON.userIDs != null) {
+              _this.globalRegistryRecord.userIDs = dataJSON.userIDs;
+            }
+            _this.globalRegistryRecord.lastUpdate = dataJSON.lastUpdate;
+            _this.globalRegistryRecord.timeout = dataJSON.timeout;
+            _this.globalRegistryRecord.salt = dataJSON.salt;
+            _this.globalRegistryRecord.active = dataJSON.active;
+            _this.globalRegistryRecord.revoked = dataJSON.revoked;
+            resolve(_this.globalRegistryRecord);
+          }
+        }
+      });
+    }
+  });
+}*/
 
 
 module.exports = router;
