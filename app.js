@@ -54,7 +54,8 @@ app.use(flash());
 
 app.use(function (req, res, next) {
   req.flash = flash;
-  req.globalRegistry = globlaRegistryUrl;
+  req.globalRegistryUrl = configAPP.globlaRegistryUrl;
+  req.globalRegistryPort = configAPP.globlaRegistryPort;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
   //req.currentDomain = "https://rethink.tlabscloud.com/";

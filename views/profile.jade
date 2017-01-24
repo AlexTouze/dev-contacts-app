@@ -9,7 +9,6 @@ append styles
 	link(href='../css/style.css', rel='stylesheet')
 	script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
 append body
-	// Fixed navbar
 	nav.navbar.navbar-default.navbar-fixed-top
 		.container
 			.navbar-header
@@ -21,11 +20,21 @@ append body
 				a.navbar-brand(href='#')!= title
 			#navbar.navbar-collapse.collapse
 				ul.nav.navbar-nav
+					li
+						a(href='/home') Home
 					li.active
-						a(href='home') Home
-                    li.active
-						a(href='/profile') Profile
-	.container
-		.row 
-			.col-sm-4
-				h2 Current Contact						
+						a(href='home/profile') Profile
+	.col-sm-6
+		.well
+			h3
+				span Local
+			p 
+				strong id: 
+				span!= user._id
+				br
+				strong email:   
+				span!= user.local.email
+				br
+				strong password: 
+				span!= user.local.password
+									

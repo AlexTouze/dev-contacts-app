@@ -1,7 +1,5 @@
 var contactsList = [];
-var url = 'http://130.149.22.133:5002';
-var urlOrange = 'http://161.106.2.23:5002';
-var port = '5002'
+//var url = 'http://130.149.22.133:5002';
 
 function addContactEvent() {
     // Delete User link click

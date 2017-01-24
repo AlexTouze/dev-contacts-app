@@ -12,8 +12,8 @@ router.get('/getdomain', function (req, res, next) {
   res.json(domain);
 });
 
-router.get('/profile', function (req, res, next) {
-  res.render('profile', { title: req.title, domain: req.currentDomain });
+router.get('/profile', isLoggedIn, function (req, res, next) {
+  res.render('profile', { title: req.title, domain: req.currentDomain, user: req.user });
 });
 
 // route middleware to make sure
