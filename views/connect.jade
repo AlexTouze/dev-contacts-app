@@ -12,7 +12,7 @@ append body
     div.container
         div.col-sm-6.col-sm-offset-3
             h1 Login
-            form(action="/login" method="post")
+            form(action="/login" method="POST")
                 div.form-group
                     label Email
                     input.form-control(type='email', name="email", placeholder='Email address', required='true', autofocus='')
@@ -23,4 +23,3 @@ append body
             hr 
             p 
                 a.register(href="/signup") Register 
-                a.forgot(href="/")  Forgot Password 

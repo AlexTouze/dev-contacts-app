@@ -1,12 +1,5 @@
 // DOM Ready =============================================================
 $(document).ready(function () {
-
-    /*** Load Runtime reThink ****/
-
-    // Load domain Runtime or local 
-    
-     $('#login').modal().show();
-
     /*=============================================================*/
 
     /******* Contact View************/

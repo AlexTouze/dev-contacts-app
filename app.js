@@ -8,21 +8,24 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var debug = require('debug')('http')
-  , http = require('http')
-  , name = 'dev-contacts-app';
+var http = require('http')
+var name = 'dev-contacts-app';
 var cors = require('cors');
+var passport = require('passport');
 
 // Database
 var mongoose = require('mongoose');
 var configAPP = require('./config/configapp.js');
+mongoose.Promise = global.Promise;
 mongoose.connect(configAPP.url);
+require('./config/passport'); // pass passport for configuration
 
 //Global registry
 var globlaRegistryUrl = ""
 
 //PassPort 
 var session = require('express-session');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
 
 //routes
 var connect = require('./routes/connect');
@@ -36,15 +39,21 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'config')));
+app.use(session({ secret: 'rethink', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session("combined")); // persistent login sessions
+app.use(flash());
 
 app.use(function (req, res, next) {
+  req.flash = flash;
   req.globalRegistry = globlaRegistryUrl;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
@@ -56,12 +65,11 @@ app.use(function (req, res, next) {
 });
 
 //Add passport 
-
-
 app.use('/', connect);
 app.use('/login', connect);
 app.use('/signup', connect);
 app.use('/home', home)
+app.use('/profile', home)
 app.use('/users', users);
 
 // catch 404 and forward to error handler
@@ -71,9 +79,6 @@ app.use(function (req, res, next) {
   next(err);
 });
 
-// error handlers
-
-// development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function (err, req, res, next) {
@@ -94,7 +99,5 @@ app.use(function (err, req, res, next) {
     error: {}
   });
 });
-
-app.use(session({ secret: 'rethink', resave: true, saveUninitialized: true }));
 
 module.exports = app;

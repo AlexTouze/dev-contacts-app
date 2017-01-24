@@ -42,7 +42,9 @@ append body
 			#navbar.navbar-collapse.collapse
 				ul.nav.navbar-nav
 					li.active
-						a(href='#') Home
+						a(href='/home') Home
+					li
+						a(href='home/profile') Profile
 	.container
 		.row 
 			.col-sm-4
@@ -128,18 +130,3 @@ append body
 					.modal-footer
 						button(type="button" class="btn btn-secondary" data-dismiss="modal" id="rejectedCall") Reject
 						button(type="button" class="btn btn-primary" id="acceptedCall" data-dismiss="modal") Accept
-		.modal#login
-			.modal-dialog(role="document")
-				.modal-content
-					.modal-header
-						button.close(type="button" data-dismiss="modal" aria-label="Close")
-							span(aria-hidden="true") &times;
-						h3.modal-title Login to reThinkCall
-					.modal-body
-						form.form-signin
-							input#userLogin.form-control(type='email', placeholder='Email address', required='true', autofocus='')
-							input#userPwd.form-control(type='password', placeholder='Password', required='true')
-							button(type="button" class="btn btn-primary" data-dismiss="modal" id="AcceptLogin") Login
-					.modal-footer
-						a.register(onclick="registerUser()") Register 
-						a.forgot(onclick="forgotPwd()")  Forgot Password 

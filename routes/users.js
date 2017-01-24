@@ -45,6 +45,12 @@ router.post('/addcontact', function (req, res, next) {
   // save the user
 
   newUser.save(function (err) {
+    if(err === null){
+
+    }
+    else {
+      res.send({ msg: err });
+    }
     res.send((err === null) ? { msg: '' } : { msg: err });
   });
 
@@ -55,7 +61,7 @@ router.post('/addcontact', function (req, res, next) {
  */
 router.delete('/removecontact/:id', function (req, res) {
   var userToDelete = req.params.id;
-  User.findByIdAndRemove(userToDelete, function (err) {  
+  User.findByIdAndRemove(userToDelete, function (err) {
     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
   });
 });
@@ -69,7 +75,7 @@ router.put('/addcontact', function (req, res, next) {
   /*var token = signGlobalRegistryRecord(record);*/
   console.log(token);
   //var a = new GraphConnector();
-  
+
   request(
     {
       method: 'PUT',
@@ -113,76 +119,40 @@ function generateGUID(publicPEM, salt) {
 }
 
 
-/**
- * Generates a public/private key pair from a given mnemonic (16 words).
- * Expects a string containing 16 words seperated by single spaces.
- * Retrieves data from the Global Registry.
- * @param  {string}     mnemonicAndSalt     A string of 16 words.
- * @returns  {Promise}  Promise          Global Registry Record.
- */
-/*useGUID(mnemonicAndSalt) {
-  // TODO: check if format is correct and if all words are from bip39 english wordlist
-  var lastIndex = mnemonicAndSalt.lastIndexOf(' ');
-  var mnemonic = mnemonicAndSalt.substring(0, lastIndex);
-  var saltWord = mnemonicAndSalt.substring(lastIndex + 1, mnemonicAndSalt.length);
-  this._createKeys(mnemonic, saltWord);
+function addToGlobalRegistry(token, graphConnector) {
 
-  var _this = this;
-
-  // retrieve current info from Global Registry and fill this.globalRegistryRecord
-  var msg = {
-    type: 'READ',
-    from: this._hypertyRuntimeURL + '/graph-connector',
-    to: 'global://registry/',
-    body: { guid: this.globalRegistryRecord.guid }
-  };
-
-  return new Promise(function(resolve, reject) {
-
-    if (_this.messageBus === undefined) {
-      reject('MessageBus not found on GraphConnector');
-    } else {
-
-      _this.messageBus.postMessage(msg, (reply) => {
-
-        // reply should be the JSON returned from the Global Registry REST-interface
-        var jwt = reply.body.data;
-        var unwrappedJWT = KJUR.jws.JWS.parse(reply.body.data);
-        var dataEncoded = unwrappedJWT.payloadObj.data;
-        var dataDecoded = base64url.decode(dataEncoded);
-        var dataJSON = JSON.parse(dataDecoded);
-
-        // public key should match
-        var sameKey = (dataJSON.publicKey == _this.globalRegistryRecord.publicKey);
-        if (!sameKey) {
-          reject('Retrieved key does not match!');
-        } else {
-          var publicKeyObject = jsrsasign.KEYUTIL.getKey(dataJSON.publicKey);
-          var encodedString = jwt.split('.').slice(0, 2).join('.');
-          var sigValueHex = unwrappedJWT.sigHex;
-          var sig = new KJUR.crypto.Signature({alg: 'SHA256withECDSA'});
-          sig.init(publicKeyObject);
-          sig.updateString(encodedString);
-          var isValid = sig.verify(sigValueHex);
-
-          if (!isValid) {
-            reject('Retrieved Record not valid!');
-          } else {
-            if (typeof dataJSON.userIDs != 'undefined' && dataJSON.userIDs != null) {
-              _this.globalRegistryRecord.userIDs = dataJSON.userIDs;
-            }
-            _this.globalRegistryRecord.lastUpdate = dataJSON.lastUpdate;
-            _this.globalRegistryRecord.timeout = dataJSON.timeout;
-            _this.globalRegistryRecord.salt = dataJSON.salt;
-            _this.globalRegistryRecord.active = dataJSON.active;
-            _this.globalRegistryRecord.revoked = dataJSON.revoked;
-            resolve(_this.globalRegistryRecord);
-          }
-        }
-      });
-    }
+  graphConnector.signGlobalRegistryRecord();
+  console.log("userGUID", userGUID);
+  var test = JSON.stringify({ data: dataJSONUser });
+  var oHeader = { alg: 'ES256', typ: 'JWT' };
+  var sHeader = JSON.stringify(oHeader);
+  var base64Data = btoa(JSON.stringify(dataJSONUser));
+  var sPayload = JSON.stringify({
+    "data": base64Data
   });
-}*/
 
+  var sJWT = KJUR.jws.JWS.sign("ES256", sHeader, sPayload, userGUID.privatePEM);
+  //console.log(sPayload);
+  var path = '/guid/' + userGUID.guid;
+  var dataUser = { url: urlOrange, port: port, path, sHeader: sHeader, sPayload: test, privateKey: userGUID.privatePEM, publickey: userGUID.publicPEM, expire: timeout, token: sJWT };
+  var urlRequest = urlOrange + '/guid/' + currentGraphConnector.globalRegistryRecord.guid;
+
+  $.ajax({
+    type: 'PUT',
+    url: '/users/addcontact/',
+    data: { token: token, urlRequest: urlRequest }
+  }).done(function (response) {
+    console.log(response)
+  })
+
+}
+
+function z () {
+  var currentGraphConnector = getGraphConnector();
+  currentGraphConnector.generateGUID();
+  currentGraphConnector.globalRegistryRecord.userIDs.push({ uid: "user://machin.goendoer.net/", domain: "google.com" }, { uid: "user://bidule.com/fluffy123", domain: "google.com" });
+  currentGraphConnector.globalRegistryRecord.defaults.push({ voice: "a", chat: "b", video: "c" })
+  var token = currentGraphConnector.signGlobalRegistryRecord();
+}
 
 module.exports = router;
