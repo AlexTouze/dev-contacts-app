@@ -72,6 +72,7 @@ app.use('/signup', connect);
 app.use('/home', home)
 app.use('/profile', home)
 app.use('/users', users);
+app.use('/adduser', users);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -16,6 +16,7 @@ var hex64 = require('hex64');
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
 var User = require('../models/userApp');
+var UserLocal = require('../models/user');
 
 /*
  * GET userlist.
@@ -36,48 +37,59 @@ router.get('/getcontactlists', function (req, res, next) {
  * POST to adduser.
  */
 router.post('/addcontact', function (req, res, next) {
-
   var currentUser = req.body;
-  initRecord();
 
-  var newUser = new User();
-  newUser.contactlist.mail = currentUser.mail;
-  newUser.contactlist.password = currentUser.password;
-  newUser.contactlist.firstname = currentUser.firstname;
-  newUser.contactlist.lastname = currentUser.lastname;
-  newUser.contactlist.age = currentUser.age;
-  newUser.contactlist.guid = _globalRegistryRecord.guid;
-  // save the user
+  var newUser = new UserLocal();
 
   newUser.save(function (err) {
     if (err) {
       res.send({ msg: err });
     }
     else {
-      _globalRegistryRecord.userIDs.push({ uid: "user://machin.goendoer.net/", domain: "google.com" }, { uid: "user://bidule.com/fluffy123", domain: "google.com" });
-      _globalRegistryRecord.defaults.push({ voice: "a", chat: "b", video: "c" })
-      var jwt = _signGlobalRegistryRecord();
-      var urlRequest = req.globalRegistryUrl + '/guid/' + _globalRegistryRecord.guid;
-      var portRequest = req.globalRegistryPort;
+      res.send({ msg: '' });
+    }
+  });
+});
 
-      request({
-        proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-        method: 'PUT',
-        uri: urlRequest,
-        port: portRequest,
-        headers: {
-          'Content-Length': jwt.length,
-          'Content-Type': 'application/json'
-        },
-        body: jwt
-      }, function (error, response, body) {
-        if (response.statusCode != 200) {
-          console.log(response.statusCode);
-          res.send({ msg: error });
-        } else {
-          console.log(JSON.stringify(response));
-          res.send({ msg: '' });
-        }
+router.get('/adduser', function (req, res, next) {
+  res.render('adduser');
+});
+
+router.post('/addContactToGlobal', function (req, res, next) {
+
+  var currentUser = req.user;
+  console.log(req.query)
+  var updateUser = new User();
+  initRecord();
+
+  _globalRegistryRecord.userIDs.push({ "uid": req.query.uid, "domain": req.query.domain });
+  _globalRegistryRecord.defaults = ({ "voice": "a", "chat": "b", "video": "c" })
+  var jwt = _signGlobalRegistryRecord();
+  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + _globalRegistryRecord.guid;
+
+  request({
+    proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+    method: 'PUT',
+    uri: urlRequest,
+    headers: {
+      'Content-Length': jwt.length,
+      'Content-Type': 'application/json'
+    },
+    body: jwt
+  }, function (error, response, body) {
+    if (response.statusCode != 200) {
+      console.log(JSON.stringify(response));
+      //res.send({ msg: error });
+    } else {
+      console.log(JSON.stringify(response));
+      var guid = response.request.uri.path.replace('/guid/', '');
+      updateUser._id = currentUser._id;
+      updateUser.guid = guid;
+      updateUser.prvKey = _prvKey;
+      updateUser.privateKey = privateKey;
+      UserLocal.findByIdAndUpdate(currentUser._id, { $set: updateUser }, { new: false }, function (err, Event) {
+        if (err) throw err;
+        res.redirect('/home');
       });
     }
   });
@@ -94,41 +106,27 @@ router.delete('/removecontact/:id', function (req, res) {
 });
 
 
-router.put('/addcontact', function (req, res, next) {
-
-  //request.defaults({ 'proxy': 'http://proxy.rd.francetelecom.fr:3128/' })
-  var token = req.body.token;
-  var urlRequest = req.body.urlRequest;
-  /*var token = signGlobalRegistryRecord(record);*/
-  console.log(token);
-  //var a = new GraphConnector();
+router.get('/globalcontact/:guid', function (req, res, next) {
+  var guid = req.params.guid;
+  var urlRequest = req.globalRegistryUrl + '/guid/' + guid;
 
   request(
     {
-      method: 'PUT',
+      method: 'GET',
+      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
       uri: urlRequest,
       port: '5002',
-      headers: {
-        'Content-Length': token.length,
-        'Content-Type': 'application/json'
-      },
-      body: token
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
         console.log('error ' + response.statusCode)
         console.log(JSON.stringify(req.body.token))
       } else {
-        console.log('statusCode: ' + response.statusCode)
-        console.log(JSON.stringify(req.body.token))
+        console.log(JSON.stringify(response));
       }
     }
   )
 });
-
-function addToGR(jwt, callback) {
-
-}
 
 /********** JWT ********* */
 var _globalRegistryRecord;
@@ -145,7 +143,7 @@ var Record = function () {
   this.active = "";
   this.revoked = "";
   this.schemaVersion = "1";
-  this.defaults = [];
+  this.defaults = "";
 }
 
 function initRecord() {

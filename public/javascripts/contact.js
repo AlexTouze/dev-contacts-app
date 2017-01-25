@@ -34,7 +34,7 @@ function addContact(event) {
     }
 
     $.each(contactsList, function () {
-        if (this.mail === newUser.mail) exist = true
+        if (this.contactlist.mail === newUser.mail) exist = true
     });
 
     // Check and make sure errorCount's still at zero
@@ -56,7 +56,7 @@ function addContact(event) {
             });
         }
         else {
-            alert('Error:  Guid already exists');
+            alert('User is already add');
         }
     }
 }
@@ -114,6 +114,14 @@ function contactInfo(event) {
     $('#userAge').text(thisContact.age);
     $('#userGuid').text(thisContact.guid);
     $('#userMail').text(thisContact.mail);
+
+    $.ajax({
+        type: 'GET',
+        url: '/users/globalcontact/' + thisContact.guid
+    }).done(function (response) {
+        console.log(response)
+    });
+
 }
 
 

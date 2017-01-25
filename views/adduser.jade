@@ -11,15 +11,12 @@ append styles
 append body
     div.container
         div.col-sm-6.col-sm-offset-3
-            h1 Login
-            form(action="/login" method="POST")
+            h1 Signup
+            form(action="/users/addContactToGlobal" method="POST")
                 div.form-group
-                    label Email
-                    input.form-control(type='email', name="email", placeholder='Email address', required='true', autofocus='')
+                    label uid
+                    input.form-control(type='text', name="uid", id="uid", placeholder='user://facebook.com/fluffy123', required='true')
                 div.form-group
-                    label Password
-                    input.form-control(type='password',name="password", placeholder='Password', required='true', autofocus='')
-                button(type="submit" class="btn btn-warning") Login
-            hr 
-            p 
-                a.register(href="/signup") Register 
+                    label domain
+                    input.form-control(type='text',name="domain", id="domain", placeholder='google.com', required='true')
+                button(type="submit" class="btn btn-warning") Add User

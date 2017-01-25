@@ -9,22 +9,16 @@ var userSchema = mongoose.Schema({
     local: {
         email: String,
         password: String,
+        guid: String,
+        prvKey: String,
+        privateKey: String
     },
     google: {
         id: String,
         token: String,
         email: String,
         name: String
-    }, 
-    contactlist: {
-        mail: String,
-        password: String,
-        firstname: String,
-        lastname: String,
-        age: String,
-        guid: String
     }
-
 });
 
 // methods ======================

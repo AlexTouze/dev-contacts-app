@@ -32,9 +32,13 @@ append body
 				strong id: 
 				span!= user._id
 				br
-				strong email:   
+				strong Email:   
 				span!= user.local.email
 				br
-				strong password: 
+				strong Password: 
 				span!= user.local.password
+				strong Guid: 
+				span!= user.local.guid
+				strong Private Key: 
+				span!= user.local.prvKey
 									
