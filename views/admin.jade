@@ -8,7 +8,7 @@ append styles
 	link(href='../css/navbar-fixed-top.css', rel='stylesheet')
 	link(href='../css/style.css', rel='stylesheet')
 	script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
-	script(src='../javascripts/profile.js')
+	script(src='../javascripts/admin.js')
 append body
 	nav.navbar.navbar-default.navbar-fixed-top
 		.container
@@ -23,41 +23,21 @@ append body
 				ul.nav.navbar-nav
 					li
 						a(href='/home') Home
-					li.active
+					li
 						a(href='/home/profile') Profile
-					li.admin
+					li.active
 						a(href='/home/admin') Admin
-	br
-	br
-	.col-sm-6
-		.well
-			h3
-				span Local
-			p 
-				strong id: 
-				span!= user._id
-				br
-				strong Email:   
-				span!= user.local.email
-				br
-				strong Password: 
-				span!= user.local.password
-				br
-				strong Guid: 
-				span!= user.local.guid
-				br
-				strong Private Key: 
-				span!= user.local.privateKey
-	.col-sm-6
-		.well
-			h3
-				span UserIds
-			p
-				#uidsList
-						table(class="table table-striped")
-							thead
-								tr
-									th uid
-									th domain
-							tbody
-			a(href='/users/addDomain' class="btn btn-xs btn-info") Add Domain										
+	.container
+		.row 
+			.col-sm-12
+				h2 Contacts List
+				#userList
+					table(class="table table-striped")
+						thead
+							tr
+								th Email
+								th Guid
+								th Delete?
+						tbody
+							
+					

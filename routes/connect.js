@@ -22,7 +22,7 @@ router.get('/signup', function (req, res, next) {
 });
 
 router.post('/signup', passport.authenticate('local-signup', {
-    successRedirect: 'users/adduser', // redirect to the secure profile section
+    successRedirect: 'users/addDomain', // redirect to the secure profile section
     failureRedirect: '/signup', // redirect back to the signup page if there is an error
     failureFlash: true // allow flash messages
 }));

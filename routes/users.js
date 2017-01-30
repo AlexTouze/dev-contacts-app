@@ -15,14 +15,30 @@ var jrs = require('jsrsasign');
 var hex64 = require('hex64');
 require("browserid-crypto/lib/algs/ds");
 jwcrypto.addEntropy('entropy');
-var User = require('../models/userApp');
-var UserLocal = require('../models/user');
+var UserApp = require('../models/userApp');
+var UserLocal = require('../models/userLocal');
 
 /*
  * GET userlist.
  */
 router.get('/getcontactlists', function (req, res, next) {
-  User.find({}, function (err, users) {
+
+  var loggedUser = req.user.local.guid;
+  UserApp.find({}, function (err, users) {
+    var userMap = {};
+
+    users.forEach(function (user) {
+      if (loggedUser === user.contactlist.associatedUser) {
+        userMap[user._id] = user;
+      }
+    });
+
+    res.json(userMap);
+  });
+});
+
+router.get('/getLocalUsers', function (req, res, next) {
+  UserLocal.find({}, function (err, users) {
     var userMap = {};
 
     users.forEach(function (user) {
@@ -34,12 +50,34 @@ router.get('/getcontactlists', function (req, res, next) {
 });
 
 /*
+ * DELETE to deleteuser.
+ */
+router.delete('/removeLocalUsers/:id', function (req, res) {
+  var loggedUser = req.user;
+  var userToDelete = req.params.id;
+  if (loggedUser._id != userToDelete) {
+    UserLocal.findByIdAndRemove(userToDelete, function (err) {
+      res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
+    });
+  }
+  else {
+    res.send({ msg: 'error: you can not delete your current profile' });
+  }
+});
+
+/*
  * POST to adduser.
  */
 router.post('/addcontact', function (req, res, next) {
   var currentUser = req.body;
 
-  var newUser = new UserLocal();
+  var newUser = new UserApp();
+  newUser.contactlist.mail = currentUser.mail;
+  newUser.contactlist.firstname = currentUser.firstname;
+  newUser.contactlist.lastname = currentUser.lastname;
+  newUser.contactlist.age = currentUser.age;
+  newUser.contactlist.guid = currentUser.guid;
+  newUser.contactlist.associatedUser = req.user.local.guid;
 
   newUser.save(function (err) {
     if (err) {
@@ -51,82 +89,143 @@ router.post('/addcontact', function (req, res, next) {
   });
 });
 
-router.get('/adduser', function (req, res, next) {
-  res.render('adduser');
-});
-
-router.post('/addContactToGlobal', function (req, res, next) {
-
-  var currentUser = req.user;
-  console.log(req.query)
-  var updateUser = new User();
-  initRecord();
-
-  _globalRegistryRecord.userIDs.push({ "uid": req.query.uid, "domain": req.query.domain });
-  _globalRegistryRecord.defaults = ({ "voice": "a", "chat": "b", "video": "c" })
-  var jwt = _signGlobalRegistryRecord();
-  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + _globalRegistryRecord.guid;
-
-  request({
-    proxy: 'http://proxy.rd.francetelecom.fr:3128/',
-    method: 'PUT',
-    uri: urlRequest,
-    headers: {
-      'Content-Length': jwt.length,
-      'Content-Type': 'application/json'
-    },
-    body: jwt
-  }, function (error, response, body) {
-    if (response.statusCode != 200) {
-      console.log(JSON.stringify(response));
-      //res.send({ msg: error });
-    } else {
-      console.log(JSON.stringify(response));
-      var guid = response.request.uri.path.replace('/guid/', '');
-      updateUser._id = currentUser._id;
-      updateUser.guid = guid;
-      updateUser.prvKey = _prvKey;
-      updateUser.privateKey = privateKey;
-      UserLocal.findByIdAndUpdate(currentUser._id, { $set: updateUser }, { new: false }, function (err, Event) {
-        if (err) throw err;
-        res.redirect('/home');
-      });
-    }
-  });
-});
-
 /*
  * DELETE to deleteuser.
  */
 router.delete('/removecontact/:id', function (req, res) {
   var userToDelete = req.params.id;
-  User.findByIdAndRemove(userToDelete, function (err) {
+  UserApp.findByIdAndRemove(userToDelete, function (err) {
     res.send((err === null) ? { msg: '' } : { msg: 'error: ' + err });
   });
+});
+
+router.get('/addDomain', function (req, res, next) {
+  res.render('addDomain');
+});
+
+router.post('/addContactToGlobal', function (req, res, next) {
+  var loggedUser = req.user.local.guid;
+
+  if (loggedUser === '') {
+
+    var currentUser = req.user;
+    initRecord();
+
+    _globalRegistryRecord.userIDs.push({ "uid": req.body.uid, "domain": req.body.domain });
+    _globalRegistryRecord.defaults = ({ "voice": "a", "chat": "b", "video": "c" })
+    var jwt = _signGlobalRegistryRecord();
+    var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + _globalRegistryRecord.guid;
+
+    request({
+      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      method: 'PUT',
+      uri: urlRequest,
+      headers: {
+        'Content-Length': jwt.length,
+        'Content-Type': 'application/json'
+      },
+      body: jwt
+    }, function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log(JSON.stringify(response));
+        //res.send({ msg: error });
+      } else {
+        console.log(JSON.stringify(response));
+        var guid = response.request.uri.path.replace('/guid/', '');
+        delete currentUser._id;
+        UserLocal.findById(req.user._id, function (err, user) {
+          if (err) throw err;
+          user.local.guid = guid;
+          //user.local.prvKey = _prvKey;
+          user.local.privateKey = privateKey;
+          console.log(user);
+          user.save(console.log);
+          res.redirect('/home');
+        });
+      }
+    });
+  }
+  else {
+    updateGlobalRegistryRecord(loggedUser, req, res, next)
+  }
 });
 
 
 router.get('/globalcontact/:guid', function (req, res, next) {
   var guid = req.params.guid;
-  var urlRequest = req.globalRegistryUrl + '/guid/' + guid;
+  getGlobalContact(guid, req, res, next);
+});
 
+router.get('/getUserInfo', function (req, res, next) {
+  var guid = req.user.local.guid;
+  getGlobalContact(guid, req, res, next);
+});
+
+
+function getGlobalContact(guid, req, res, next) {
+  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + guid;
   request(
     {
       method: 'GET',
       proxy: 'http://proxy.rd.francetelecom.fr:3128/',
       uri: urlRequest,
-      port: '5002',
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
         console.log('error ' + response.statusCode)
-        console.log(JSON.stringify(req.body.token))
+        console.log(JSON.stringify(req.body))
       } else {
-        console.log(JSON.stringify(response));
+        var dht = response.body;
+        res.send(JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data)).userIDs)
       }
     }
   )
-});
+}
+
+
+function updateGlobalRegistryRecord(guid, req, res, next) {
+  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + guid;
+  request(
+    {
+      method: 'GET',
+      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      uri: urlRequest,
+    },
+    function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log('error ' + response.statusCode)
+        console.log(JSON.stringify(req.body))
+      } else {
+        var jwt = (JSON.parse(response.body).Value).split(".");
+        var jwtHeader = jwt[0];
+        var updateRecord = JSON.parse(base64url.decode(JSON.parse(base64url.decode(jwt[1])).data))
+        updateRecord.userIDs.push({ "uid": req.body.uid, "domain": req.body.domain });
+        updateRecord.lastUpdate = new Date().toISOString();
+        var signJWT = signUpdateRecord(jwtHeader, updateRecord, req.user.local.privateKey);
+        request({
+          proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+          method: 'PUT',
+          uri: urlRequest,
+          headers: {
+            'Content-Length': signJWT.length,
+            'Content-Type': 'application/json'
+          },
+          body: signJWT
+        }, function (error, response, body) {
+          if (response.statusCode != 200) {
+            console.log(JSON.stringify(response));
+            //res.send({ msg: error });
+          } else {
+            console.log(JSON.stringify(response));
+            res.redirect('/home/profile');
+          }
+        });
+
+      }
+    }
+  )
+
+}
 
 /********** JWT ********* */
 var _globalRegistryRecord;
@@ -229,6 +328,20 @@ function _signGlobalRegistryRecord() {
 
   var sig = new jrs.KJUR.crypto.Signature({ alg: 'SHA256withECDSA' });
   sig.init(privateKey);
+  sig.updateString(encodedString);
+
+  var signatureHex = sig.sign();
+  var signature = hex64.toBase64(signatureHex);
+  var jwt = encodedString + '.' + signature;
+  return jwt;
+}
+
+function signUpdateRecord(jwtHeader, updateRecord, userPrivateKey) {
+  var jwtTemp = base64url.encode(JSON.stringify({ "data": base64url.encode(JSON.stringify(updateRecord)) }));
+  var encodedString = jwtHeader + '.' + jwtTemp;
+
+  var sig = new jrs.KJUR.crypto.Signature({ alg: 'SHA256withECDSA' });
+  sig.init(userPrivateKey);
   sig.updateString(encodedString);
 
   var signatureHex = sig.sign();

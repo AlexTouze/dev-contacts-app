@@ -10,7 +10,7 @@ var userSchema = mongoose.Schema({
         email: String,
         password: String,
         guid: String,
-        prvKey: String,
+        prvKey: {},
         privateKey: String
     },
     google: {

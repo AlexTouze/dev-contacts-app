@@ -4,7 +4,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var User = require('../models/user');
+var User = require('../models/userLocal');
 
     // =========================================================================
     // passport session setup ==================================================
@@ -55,6 +55,9 @@ var User = require('../models/user');
                     var newUser = new User();
 
                     // set the user's local credentials
+                    newUser.local.guid = "";
+                    newUser.local.prvKey = "";
+                    newUser.local.privateKey = "";
                     newUser.local.email = email;
                     newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model
 

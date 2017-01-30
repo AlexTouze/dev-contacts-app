@@ -27,13 +27,15 @@ append body
 					span.icon-bar
 					span.icon-bar
 					span.icon-bar
-				a.navbar-brand(href='#')!= title
+				a.navbar-brand(href='/')!= title
 			#navbar.navbar-collapse.collapse
 				ul.nav.navbar-nav
 					li.active
 						a(href='/home') Home
 					li
-						a(href='home/profile') Profile
+						a(href='/home/profile') Profile
+					li
+						a(href='/home/admin') Admin
 	.container
 		.row 
 			.col-sm-4

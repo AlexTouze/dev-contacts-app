@@ -16,6 +16,11 @@ router.get('/profile', isLoggedIn, function (req, res, next) {
   res.render('profile', { title: req.title, domain: req.currentDomain, user: req.user });
 });
 
+router.get('/admin', isLoggedIn, function (req, res, next) {
+  res.render('admin', { title: req.title, domain: req.currentDomain, user: req.user });
+});
+
+
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
 

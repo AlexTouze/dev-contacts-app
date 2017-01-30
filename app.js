@@ -69,10 +69,11 @@ app.use(function (req, res, next) {
 app.use('/', connect);
 app.use('/login', connect);
 app.use('/signup', connect);
-app.use('/home', home)
-app.use('/profile', home)
+app.use('/home', home);
+app.use('/profile', home);
+app.use('/admin', home);
 app.use('/users', users);
-app.use('/adduser', users);
+app.use('/addDomain', users);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

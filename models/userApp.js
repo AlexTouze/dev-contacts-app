@@ -7,11 +7,11 @@ var appSchema = mongoose.Schema({
     contactlist:
     {
         mail: String,
-        password: String,
         firstname: String,
         lastname: String,
         age: String,
-        guid: String
+        guid: String, 
+        associatedUser: String
     }
 
 });
