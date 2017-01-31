@@ -5,6 +5,7 @@ module.exports = {
 	'contactDB' : '127.0.0.1:27017/contactsDB', 
 	'globlaRegistryUrl' : 'http://161.106.2.20',
 	//'globlaRegistryUrl' : 'http://130.149.22.133', 
-	'globlaRegistryPort' : '5002' 
+	'globlaRegistryPort' : '5002',
+	'proxy' :'http://proxy.rd.francetelecom.fr:3128/' 
 
 };

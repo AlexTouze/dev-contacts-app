@@ -56,6 +56,7 @@ app.use(function (req, res, next) {
   req.flash = flash;
   req.globalRegistryUrl = configAPP.globlaRegistryUrl;
   req.globalRegistryPort = configAPP.globlaRegistryPort;
+  req.proxy = configAPP.proxy;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
   //req.currentDomain = "https://rethink.tlabscloud.com/";
@@ -74,6 +75,7 @@ app.use('/profile', home);
 app.use('/admin', home);
 app.use('/users', users);
 app.use('/addDomain', users);
+//app.use('/room', room);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

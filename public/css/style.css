@@ -38,3 +38,16 @@ a {
 #login a:hover {
   cursor: pointer;
 }
+#loginlogout {
+  position: absolute;
+  right: 0;
+}
+@media (max-width: 768px) {
+  #loginlogout {
+    right: 65px;
+    top: 0;
+  }
+  #loginlogout a {
+    line-height: 30px;
+  }
+}

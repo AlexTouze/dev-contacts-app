@@ -23,17 +23,3 @@ function getUserInfo() {
         $('#uidsList table tbody').html(tableContent);
     });
 }
-
-/*function removeLocalUser(event) {
-    event.preventDefault();
-    $.ajax({
-        type: 'DELETE',
-        url: '/users/removeLocalUsers/' + $(this).attr('rel')
-    }).done(function (response) {
-        // Check for a successful (blank) response
-        if (response.msg != '') alert('Error: ' + response.msg);
-
-        // Update the table
-        getLocalUsers();
-    });
-}*/

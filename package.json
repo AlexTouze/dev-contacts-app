@@ -33,6 +33,7 @@
     "btoa": "1.1.2", 
     "mongoose":"*",
     "bitcoinjs-lib": "2.3.0",
-    "hex64": "0.4.0"
+    "bitcoin": "3.0.1",
+    "hex64": "0.4.0",
   }
 }

@@ -4,7 +4,8 @@ var passport = require('passport');
 
 
 router.get('/', function (req, res, next) {
-    res.render('login');
+    res.render('index');
+    res.render('error', { error: err });
 });
 
 router.get('/login', function (req, res, next) {

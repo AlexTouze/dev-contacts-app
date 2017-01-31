@@ -18,6 +18,11 @@ var userSchema = mongoose.Schema({
         token: String,
         email: String,
         name: String
+    },
+    jwt: {
+        id: String,
+        token: String,
+        iss: String
     }
 });
 

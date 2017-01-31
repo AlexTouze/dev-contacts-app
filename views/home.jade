@@ -11,10 +11,10 @@ append styles
 append scripts
 	//script(src='../javascripts/require.js')
 	script(src='../javascripts/load.js')
-	script(src='../javascripts/loadRuntime.js')
+	//script(src='../javascripts/loadRuntime.js')
 	script(src='../javascripts/contact.js')
-	script(src='../javascripts/loadWebRTC.js')
-	script(src='../javascripts/loadConnector.js')
+	//script(src='../javascripts/loadWebRTC.js')
+	//script(src='../javascripts/loadConnector.js')
 	script(src='#{domain}.well-known/runtime/rethink.js')
 	//script(src='#{domain}/dist/rethink.js')
 append body
@@ -36,6 +36,8 @@ append body
 						a(href='/home/profile') Profile
 					li
 						a(href='/home/admin') Admin
+					li#loginlogout
+						a(href='/') Logout
 	.container
 		.row 
 			.col-sm-4

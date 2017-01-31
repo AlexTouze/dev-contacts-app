@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-var debug = require('debug')('users');
 var request = require('request');
 var jwt = require('jsonwebtoken');
 var base64url = require('base64url');
@@ -117,7 +116,7 @@ router.post('/addContactToGlobal', function (req, res, next) {
     var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + _globalRegistryRecord.guid;
 
     request({
-      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      proxy: req.proxy,
       method: 'PUT',
       uri: urlRequest,
       headers: {
@@ -167,7 +166,7 @@ function getGlobalContact(guid, req, res, next) {
   request(
     {
       method: 'GET',
-      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      proxy: req.proxy,
       uri: urlRequest,
     },
     function (error, response, body) {
@@ -188,22 +187,23 @@ function updateGlobalRegistryRecord(guid, req, res, next) {
   request(
     {
       method: 'GET',
-      proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+      proxy: req.proxy,
       uri: urlRequest,
     },
     function (error, response, body) {
       if (response.statusCode != 200) {
         console.log('error ' + response.statusCode)
         console.log(JSON.stringify(req.body))
-      } else {
+      }
+      else {
         var jwt = (JSON.parse(response.body).Value).split(".");
         var jwtHeader = jwt[0];
-        var updateRecord = JSON.parse(base64url.decode(JSON.parse(base64url.decode(jwt[1])).data))
+        var updateRecord = JSON.parse(base64url.decode(JSON.parse(base64url.decode(jwt[1])).data));
         updateRecord.userIDs.push({ "uid": req.body.uid, "domain": req.body.domain });
         updateRecord.lastUpdate = new Date().toISOString();
         var signJWT = signUpdateRecord(jwtHeader, updateRecord, req.user.local.privateKey);
         request({
-          proxy: 'http://proxy.rd.francetelecom.fr:3128/',
+          proxy: req.proxy,
           method: 'PUT',
           uri: urlRequest,
           headers: {
