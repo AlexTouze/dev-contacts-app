@@ -12,6 +12,7 @@ var http = require('http')
 var name = 'dev-contacts-app';
 var cors = require('cors');
 var passport = require('passport');
+var socketIO = require('socket.io');
 
 // Database
 var mongoose = require('mongoose');
@@ -60,9 +61,6 @@ app.use(function (req, res, next) {
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
   //req.currentDomain = "https://rethink.tlabscloud.com/";
-  // req.currentDomain =  req.get('host');
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
 
@@ -99,10 +97,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+  res.render('error' )
 });
 
 module.exports = app;

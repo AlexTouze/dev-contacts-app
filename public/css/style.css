@@ -51,3 +51,15 @@ a {
     line-height: 30px;
   }
 }
+.loginbtn {
+  margin: 7px;
+}
+.loginbtn img {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+}
+video {
+  max-width: 100%;
+  width: 100%;
+}

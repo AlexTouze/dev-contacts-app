@@ -5,9 +5,10 @@ var passport = require('passport');
 
 router.get('/', function (req, res, next) {
     res.render('index');
-    res.render('error', { error: err });
 });
 
+
+// locally --------------------------------
 router.get('/login', function (req, res, next) {
     res.render('connect', { message: req.flash('loginMessage') });
 });
@@ -25,6 +26,14 @@ router.get('/signup', function (req, res, next) {
 router.post('/signup', passport.authenticate('local-signup', {
     successRedirect: 'users/addDomain', // redirect to the secure profile section
     failureRedirect: '/signup', // redirect back to the signup page if there is an error
+    failureFlash: true // allow flash messages
+}));
+
+// connect jwt -----------------------------
+
+router.post('/auth/connect', passport.authenticate('jwt', {
+    successRedirect: '/home',
+    failureRedirect: '/',
     failureFlash: true // allow flash messages
 }));
 
