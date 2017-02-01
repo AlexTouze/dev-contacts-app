@@ -4,16 +4,12 @@ var request = require('request');
 var jwt = require('jsonwebtoken');
 var base64url = require('base64url');
 var btoa = require("btoa");
-var fs = require('fs');
 var jws = require('jws');
-var jwcrypto = require("browserid-crypto");
 var sjcl = require("sjcl");
 var bip39 = require('bip39');
 var bitcoin = require('bitcoinjs-lib');
 var jrs = require('jsrsasign');
 var hex64 = require('hex64');
-require("browserid-crypto/lib/algs/ds");
-jwcrypto.addEntropy('entropy');
 var UserApp = require('../models/userApp');
 var UserLocal = require('../models/userLocal');
 
@@ -31,6 +27,7 @@ router.get('/getcontactlists', function (req, res, next) {
         userMap[user._id] = user;
       }
     });
+
 
     res.json(userMap);
   });
@@ -197,6 +194,39 @@ router.get('/getUserInfo', function (req, res, next) {
   getGlobalContact(guid, req, res, next);
 });
 
+router.get('/getRoom/:id', function (req, res, next) {
+  var urlRequest = req.domainRegistryUrl + req.params.id;
+  request(
+    {
+      method: 'GET',
+      proxy: req.proxy,
+      uri: urlRequest,
+    },
+    function (error, response, body) {
+
+      if (response.statusCode != 200) {
+        console.log('error ' + response.statusCode);
+        console.log(JSON.stringify(req.body));
+      }
+      else {
+        if (response.body != '{}') {
+          var roomList = JSON.parse(response.body);
+          var idRoom;
+
+          for (var room in roomList) {
+            idRoom = room;
+          }
+          res.json({ url: req.webRTCUrl + 'room/' + idRoom });
+        }
+        else {
+          res.json({ url: '' });
+        }
+
+      }
+
+    });
+});
+
 
 function getGlobalContact(guid, req, res, next) {
   var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + guid;
@@ -254,6 +284,7 @@ function updateGlobalRegistryRecord(guid, req, res, next) {
             //res.send({ msg: error });
           } else {
             console.log(JSON.stringify(response));
+
             res.redirect('/home/profile');
           }
         });

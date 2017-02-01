@@ -9,7 +9,7 @@ function addContactEvent() {
     $('#userList table tbody').on('click', 'td button.infoUser', contactInfo);
 
     // Show User link click
-    //$('#userList table tbody').on('click', 'td button.callUser', callUser);
+    $('#userList table tbody').on('click', 'td button.callUser', callUser);
     //$('#userList table tbody').on('click', 'td button.callUser', callWebRTC);
 
     $('.addContact').on('click', addContact);
@@ -84,23 +84,29 @@ function getContactList() {
         // Stick our user data array into a userlist variable in the global object
         contactsList = data;
         $.each(data, function () {
+            var callId = "";
             var uids = "";
             $.each(JSON.parse(this.contactlist.uids), function () {
-                uids += this.uid + " " + this.domain;
+                if (this.domain.indexOf("orange-labs.fr") != -1) {
+                    callId = this.uid
+                    domainId = this.domain
+                }
+                uids += "uid: " + this.uid + "<br>" + "domain: " + this.domain + "<br>";
             });
             tableContent += '<tr>';
             tableContent += '<td>' + this.contactlist.firstname + ' ' + this.contactlist.lastname + '</td>';
             tableContent += '<td>' + this.contactlist.mail + '</td>';
             tableContent += '<td>' + this.contactlist.age + '</td>';
-            tableContent += '<td>' + uids + '</td>';
+            tableContent += '<td id="" rel="">' + uids + '</td>';
             tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.contactlist.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
-            tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" rel="' + this.contactlist.mail + '" >call</button></td>';
+            if(callId != "")  tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" uid="' + callId + '" domain="' + domainId + '">call</button></td>';
+            //else tableContent +='<td><button type="button" class="callUser btn btn-xs btn-default">call</button></td>';
             tableContent += '</tr>';
         });
-
         // Inject the whole content string into our existing HTML table
         $('#userList table tbody').html(tableContent);
+
     });
 }
 
@@ -127,4 +133,19 @@ function contactInfo(event) {
         console.log(response)
     });
 
+}
+
+function callUser(event) {
+    event.preventDefault();
+    $.ajax({
+        type: 'GET',
+        url: '/users/getRoom/' + $(this).attr('uid') 
+    }).done(function (response) {
+        if(response.url != ''){
+           window.location.href = response.url
+        }
+        else{
+            alert("Your contact is offline");
+        }
+    });
 }

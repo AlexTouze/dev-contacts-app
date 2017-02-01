@@ -6,6 +6,8 @@ module.exports = {
 	'globlaRegistryUrl' : 'http://161.106.2.20',
 	//'globlaRegistryUrl' : 'http://130.149.22.133', 
 	'globlaRegistryPort' : '5002',
-	'proxy' :'http://proxy.rd.francetelecom.fr:3128/' 
+	'proxy' :'http://proxy.rd.francetelecom.fr:3128/',
+	'domainRegistryUrl':'https://acor-webrtc.rethink2.orange-labs.fr/registry/',
+	'webRTCUrl':'https://acor-webrtc.rethink2.orange-labs.fr/'
 
 };

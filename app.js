@@ -12,7 +12,6 @@ var http = require('http')
 var name = 'dev-contacts-app';
 var cors = require('cors');
 var passport = require('passport');
-var socketIO = require('socket.io');
 
 // Database
 var mongoose = require('mongoose');
@@ -32,7 +31,6 @@ var flash = require('connect-flash');
 var connect = require('./routes/connect');
 var home = require('./routes/home');
 var users = require('./routes/users');
-var guidNode = require('./routes/guidNode');
 
 var app = express();
 
@@ -58,7 +56,9 @@ app.use(function (req, res, next) {
   req.flash = flash;
   req.globalRegistryUrl = configAPP.globlaRegistryUrl;
   req.globalRegistryPort = configAPP.globlaRegistryPort;
+  req.domainRegistryUrl = configAPP.domainRegistryUrl;
   req.proxy = configAPP.proxy;
+  req.webRTCUrl = configAPP.webRTCUrl;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
   //req.currentDomain = "https://rethink.tlabscloud.com/";
