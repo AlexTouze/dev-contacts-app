@@ -27,8 +27,6 @@ router.get('/getcontactlists', function (req, res, next) {
         userMap[user._id] = user;
       }
     });
-
-
     res.json(userMap);
   });
 });

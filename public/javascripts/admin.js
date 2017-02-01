@@ -18,8 +18,8 @@ function getLocalUsers() {
         contactsList = data;
         $.each(data, function () {
             tableContent += '<tr>';
-            tableContent += '<td>' + this.local.email + '</td>';
-            tableContent += '<td>' + this.local.guid + '</td>';
+            tableContent += '<td>' + (this.local ? this.local.email : 'undefined') + '</td>';
+            tableContent += '<td>' + (this.local ? this.local.guid : 'undefined') + '</td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
             tableContent += '</tr>';
         });

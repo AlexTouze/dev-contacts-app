@@ -34,31 +34,31 @@ function addContact(event) {
     }
 
     $.each(contactsList, function () {
-        if (this.contactlist.mail === newUser.mail) exist = true
+        if (this.contactlist.guid === newUser.guid) exist = true
     });
 
     // Check and make sure errorCount's still at zero
-    if (emptyInput === 0) {
-        if (!exist) {
-            $.ajax({
-                type: 'POST',
-                data: newUser,
-                url: '/users/addcontact/',
-                dataType: 'JSON'
-            }).done(function (response) {
-                // Check for successful (blank) response
-                if (response.msg === '') {
-                    // Clear the form inputs
-                    $(".form-signin")[0].reset();
-                    getContactList();
-                }
-                else { alert('Error: ' + response.msg); }  // If something goes wrong, alert the error message that our service returned
-            });
-        }
-        else {
-            alert('User is already add');
-        }
+    //if (emptyInput === 0) {
+    if (!exist) {
+        $.ajax({
+            type: 'POST',
+            data: newUser,
+            url: '/users/addcontact/',
+            dataType: 'JSON'
+        }).done(function (response) {
+            // Check for successful (blank) response
+            if (response.msg === '') {
+                // Clear the form inputs
+                $(".form-signin")[0].reset();
+                getContactList();
+            }
+            else { alert('Error: ' + response.msg); }  // If something goes wrong, alert the error message that our service returned
+        });
     }
+    else {
+        alert('User is already add');
+    }
+    // }
 }
 
 function removeContact(event) {
@@ -86,23 +86,27 @@ function getContactList() {
         $.each(data, function () {
             var callId = "";
             var uids = "";
+            var callSection = "";
             $.each(JSON.parse(this.contactlist.uids), function () {
                 if (this.domain.indexOf("orange-labs.fr") != -1) {
                     callId = this.uid
                     domainId = this.domain
+                    callSection += '<button type="button" class="callUser btn btn-xs btn-success" uid="' + callId + '" domain="' + domainId + '">call</button>'
                 }
                 uids += "uid: " + this.uid + "<br>" + "domain: " + this.domain + "<br>";
+                callSection += "<br><br>";
             });
             tableContent += '<tr>';
             tableContent += '<td>' + this.contactlist.firstname + ' ' + this.contactlist.lastname + '</td>';
             tableContent += '<td>' + this.contactlist.mail + '</td>';
             tableContent += '<td>' + this.contactlist.age + '</td>';
-            tableContent += '<td id="" rel="">' + uids + '</td>';
             tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.contactlist.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
-            if(callId != "")  tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" uid="' + callId + '" domain="' + domainId + '">call</button></td>';
+            tableContent += '<td id="" rel="">' + uids + '</td>';
+            tableContent += '<td>' + callSection + '</td>';
             //else tableContent +='<td><button type="button" class="callUser btn btn-xs btn-default">call</button></td>';
             tableContent += '</tr>';
+
         });
         // Inject the whole content string into our existing HTML table
         $('#userList table tbody').html(tableContent);
@@ -139,12 +143,12 @@ function callUser(event) {
     event.preventDefault();
     $.ajax({
         type: 'GET',
-        url: '/users/getRoom/' + $(this).attr('uid') 
+        url: '/users/getRoom/' + $(this).attr('uid')
     }).done(function (response) {
-        if(response.url != ''){
-           window.location.href = response.url
+        if (response.url != '') {
+            window.location.href = response.url
         }
-        else{
+        else {
             alert("Your contact is offline");
         }
     });
