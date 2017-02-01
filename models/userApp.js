@@ -11,7 +11,8 @@ var appSchema = mongoose.Schema({
         lastname: String,
         age: String,
         guid: String, 
-        associatedUser: String
+        associatedUser: String,
+        uids: String
     }
 
 });

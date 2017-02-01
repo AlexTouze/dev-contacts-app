@@ -31,7 +31,7 @@ router.post('/signup', passport.authenticate('local-signup', {
 
 // connect jwt -----------------------------
 
-router.post('/auth/connect', passport.authenticate('jwt', {
+router.get('/auth/connect', passport.authenticate('jwt', {
     successRedirect: '/home',
     failureRedirect: '/',
     failureFlash: true // allow flash messages

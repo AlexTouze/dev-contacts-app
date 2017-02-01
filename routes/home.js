@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', isLoggedIn, function (req, res, next) {
-  res.render('home', { title: req.title, domain: req.currentDomain });
+  res.render('home', { title: req.title, domain: req.currentDomain, user: req.user });
 });
 
 /* GET current domain */

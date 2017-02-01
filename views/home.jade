@@ -35,7 +35,8 @@ append body
 					li
 						a(href='/home/admin') Admin
 					li#loginlogout
-						a(href='/') Logout
+						a(href='/') Logout 
+							span!=user.local.email
 	.container
 		.row 
 			.col-sm-4
@@ -67,6 +68,8 @@ append body
 						input#inputAge.form-control(type='text', placeholder='Age', required='true')
 						label.sr-only(for='inputEmail') Email address
 						input#inputEmail.form-control(type='email', placeholder='Email address', required='true', autofocus='')
+						label.sr-only(for='inputGuid') Guid
+						input#inputGuid.form-control(type='email', placeholder='Guid', autofocus='')
 						input.btn.btn-lg.btn-primary.btn-block.addContact(type='button', value='Add Contact')
 		.row 
 			.col-sm-12
@@ -78,6 +81,7 @@ append body
 								th UserName
 								th Email
 								th Age
+								th Uids
 								th Contact Info
 								th Delete?
 								th Call

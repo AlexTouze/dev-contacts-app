@@ -78,14 +78,51 @@ router.post('/addcontact', function (req, res, next) {
   newUser.contactlist.guid = currentUser.guid;
   newUser.contactlist.associatedUser = req.user.local.guid;
 
-  newUser.save(function (err) {
-    if (err) {
-      res.send({ msg: err });
-    }
-    else {
-      res.send({ msg: '' });
-    }
-  });
+  if (currentUser.guid != "") {
+    var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + currentUser.guid;
+    request(
+      {
+        method: 'GET',
+        proxy: req.proxy,
+        uri: urlRequest,
+      },
+      function (error, response, body) {
+        if (response.statusCode != 200) {
+          console.log('error ' + response.statusCode);
+          console.log(JSON.stringify(req.body));
+          newUser.save(function (err) {
+            if (err) {
+              res.send({ msg: err });
+            }
+            else {
+              res.send({ msg: '' });
+            }
+          });
+        } else {
+          var dht = response.body;
+          newUser.contactlist.uids = JSON.stringify(JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data)).userIDs);
+          newUser.save(function (err) {
+            if (err) {
+              res.send({ msg: err });
+            }
+            else {
+              res.send({ msg: '' });
+            }
+          });
+        }
+      }
+    )
+  }
+  else {
+    newUser.save(function (err) {
+      if (err) {
+        res.send({ msg: err });
+      }
+      else {
+        res.send({ msg: '' });
+      }
+    });
+  }
 });
 
 /*

@@ -28,7 +28,8 @@ append body
 					li.active
 						a(href='/home/admin') Admin
 					li#loginlogout
-						a(href='/') Logout
+						a(href='/') Logout 
+							span!=user.local.email
 	.container
 		.row 
 			.col-sm-12

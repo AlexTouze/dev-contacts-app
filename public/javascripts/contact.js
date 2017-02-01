@@ -10,7 +10,7 @@ function addContactEvent() {
 
     // Show User link click
     //$('#userList table tbody').on('click', 'td button.callUser', callUser);
-    $('#userList table tbody').on('click', 'td button.callUser', callWebRTC);
+    //$('#userList table tbody').on('click', 'td button.callUser', callWebRTC);
 
     $('.addContact').on('click', addContact);
 
@@ -29,7 +29,7 @@ function addContact(event) {
         'firstname': $('#inputFirstName').val(),
         'lastname': $("#inputLastName").val(),
         'age': $("#inputAge").val(),
-        'guid': "",
+        'guid': $("#inputGuid").val(),
         'mail': $("#inputEmail").val()
     }
 
@@ -84,10 +84,15 @@ function getContactList() {
         // Stick our user data array into a userlist variable in the global object
         contactsList = data;
         $.each(data, function () {
+            var uids = "";
+            $.each(JSON.parse(this.contactlist.uids), function () {
+                uids += this.uid + " " + this.domain;
+            });
             tableContent += '<tr>';
             tableContent += '<td>' + this.contactlist.firstname + ' ' + this.contactlist.lastname + '</td>';
             tableContent += '<td>' + this.contactlist.mail + '</td>';
             tableContent += '<td>' + this.contactlist.age + '</td>';
+            tableContent += '<td>' + uids + '</td>';
             tableContent += '<td><button type="button" class="infoUser btn btn-xs btn-info" rel="' + this.contactlist.guid + '">Info</button></td>';
             tableContent += '<td><button type="button" class="deleteUser btn btn-xs btn-danger" rel="' + this._id + '" >delete</button></td>';
             tableContent += '<td><button type="button" class="callUser btn btn-xs btn-success" rel="' + this.contactlist.mail + '" >call</button></td>';
