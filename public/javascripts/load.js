@@ -1,11 +1,5 @@
 // DOM Ready =============================================================
 $(document).ready(function () {
-
-    /*** Load Runtime reThink ****/
-
-    // Load domain Runtime or local 
-    loadreThink();
-
     /*=============================================================*/
 
     /******* Contact View************/
@@ -15,6 +9,8 @@ $(document).ready(function () {
 
     // Add Contact event 
     addContactEvent();
-    
+
+    //setTimeout(loadreThink, 3000);
+
 
 });

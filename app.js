@@ -1,5 +1,6 @@
 //"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe" --dbpath "E:\data"
 // set DEBUG=*,-not_this
+//https://rethink.tlabscloud.com/
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -7,23 +8,29 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var debug = require('debug')('http')
-  , http = require('http')
-  , name = 'dev-contacts-app';
+var http = require('http')
+var name = 'dev-contacts-app';
 var cors = require('cors');
+var passport = require('passport');
+var socketIO = require('socket.io');
 
 // Database
-var mongo = require('mongodb');
-var monk = require('monk');
-
-var db = monk('localhost:27017/contactsDB');
+var mongoose = require('mongoose');
+var configAPP = require('./config/configapp.js');
+mongoose.Promise = global.Promise;
+mongoose.connect(configAPP.url);
+require('./config/passport'); // pass passport for configuration
 
 //Global registry
 var globlaRegistryUrl = ""
 
-//var db = monk('mongo.rethink3.orange-labs.fr/test');
-var db = monk('127.0.0.1:27017/contactsDB');
+//PassPort 
+var session = require('express-session');
+var flash = require('connect-flash');
 
-var routes = require('./routes/index');
+//routes
+var connect = require('./routes/connect');
+var home = require('./routes/home');
 var users = require('./routes/users');
 var guidNode = require('./routes/guidNode');
 
@@ -34,28 +41,41 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'config')));
+app.use(session({ secret: 'rethink', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session("combined")); // persistent login sessions
+app.use(flash());
 
 app.use(function (req, res, next) {
-  req.db = db;
-  req.globalRegistry = globlaRegistryUrl;
+  req.flash = flash;
+  req.globalRegistryUrl = configAPP.globlaRegistryUrl;
+  req.globalRegistryPort = configAPP.globlaRegistryPort;
+  req.proxy = configAPP.proxy;
   req.title = "Contacts App";
   req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
-  // req.currentDomain =  req.get('host');
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  //req.currentDomain = "https://rethink.tlabscloud.com/";
   next();
 });
 
-app.use('/', routes);
+//Add passport 
+app.use('/', connect);
+app.use('/login', connect);
+app.use('/signup', connect);
+app.use('/home', home);
+app.use('/profile', home);
+app.use('/admin', home);
 app.use('/users', users);
-app.use('/guidNode', guidNode);
+app.use('/addDomain', users);
+//app.use('/room', room);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -64,9 +84,6 @@ app.use(function (req, res, next) {
   next(err);
 });
 
-// error handlers
-
-// development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function (err, req, res, next) {
@@ -82,11 +99,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
+  res.render('error' )
 });
-
 
 module.exports = app;

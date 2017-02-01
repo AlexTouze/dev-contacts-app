@@ -1,0 +1,66 @@
+extends ../node_modules/jade-bootstrap/_bootstrap
+append styles
+	// Bootstrap theme
+	+bootswatch("cerulean")
+	// Custom styles for this template
+	link(href='../css/theme.css', rel='stylesheet')
+	// Custom styles for this template
+	link(href='../css/navbar-fixed-top.css', rel='stylesheet')
+	link(href='../css/style.css', rel='stylesheet')
+	script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+	script(src='../javascripts/profile.js')
+append body
+	nav.navbar.navbar-default.navbar-fixed-top
+		.container
+			.navbar-header
+				button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+					span.sr-only Toggle navigation
+					span.icon-bar
+					span.icon-bar
+					span.icon-bar
+				a.navbar-brand(href='/')!= title
+			#navbar.navbar-collapse.collapse
+				ul.nav.navbar-nav
+					li
+						a(href='/home') Home
+					li.active
+						a(href='/home/profile') Profile
+					li.admin
+						a(href='/home/admin') Admin
+					li#loginlogout
+						a(href='/') Logout 
+							span!=user.local.email
+	br
+	br
+	.col-sm-6
+		.well
+			h3
+				span Local
+			p 
+				strong id: 
+				span!= user._id
+				br
+				strong Email:   
+				span!= user.local.email
+				br
+				strong Password: 
+				span!= user.local.password
+				br
+				strong Guid: 
+				span!= user.local.guid
+				br
+				strong Private Key: 
+				span!= user.local.privateKey
+	.col-sm-6
+		.well
+			h3
+				span UserIds
+			p
+				#uidsList
+						table(class="table table-striped")
+							thead
+								tr
+									th uid
+									th domain
+							tbody
+			a(href='/users/addDomain' class="btn btn-xs btn-info") Add Domain										

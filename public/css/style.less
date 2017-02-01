@@ -29,3 +29,48 @@ a {
         height: 80px;
     } 
 }
+#login{
+    @media (min-width: 768px) {
+        .modal-dialog {
+            width: 470px;
+        }
+    }
+    #AcceptLogin {
+        width: 100%;
+    }
+    input {
+        margin-bottom: 15px;
+    }
+    a{
+        &:hover{
+            cursor: pointer;
+        }
+
+    }
+}
+
+#loginlogout {
+    position: absolute;
+    right: 0;
+     @media (max-width: 768px) {
+        right: 65px;
+        top: 0;
+        a {
+            line-height: 30px;
+        }
+    }
+}
+
+.loginbtn{
+    margin: 7px;
+    img{
+        width: 16px;
+        height: 16px;
+        margin-right: 5px;
+    }
+}
+
+video {
+  max-width: 100%;
+  width: 100%;
+}

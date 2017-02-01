@@ -1,0 +1,22 @@
+extends ../node_modules/jade-bootstrap/_bootstrap
+append styles
+    // Bootstrap theme
+    +bootswatch("cerulean")
+    // Custom styles for this template
+    link(href='../css/theme.css', rel='stylesheet')
+    // Custom styles for this template
+    link(href='../css/navbar-fixed-top.css', rel='stylesheet')
+    link(href='../css/style.css', rel='stylesheet')
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+append body
+    div.container
+        div.col-sm-6.col-sm-offset-3
+            h1 Where can reach you ?
+            form(action="/users/addContactToGlobal" method="POST")
+                div.form-group
+                    label uid
+                    input.form-control(type='text', name="uid", id="uid", placeholder='user://facebook.com/fluffy123', required='true')
+                div.form-group
+                    label domain
+                    input.form-control(type='text',name="domain", id="domain", placeholder='google.com', required='true')
+                button(type="submit" class="btn btn-warning") Add domain
