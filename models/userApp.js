@@ -9,7 +9,7 @@ var appSchema = mongoose.Schema({
         mail: String,
         firstname: String,
         lastname: String,
-        age: String,
+        info: String,
         guid: String, 
         associatedUser: String,
         uids: String

@@ -1,6 +1,13 @@
 //"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe" --dbpath "E:\data"
 // set DEBUG=*,-not_this
 //https://rethink.tlabscloud.com/
+
+
+if (typeof process.env.NODE_ENV != 'undefined' && process.env.NODE_ENV == 'development')
+{
+   var tunnel = require('./setup_proxy');
+}
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -51,16 +58,15 @@ app.use(session({ secret: 'rethink', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session("combined")); // persistent login sessions
 app.use(flash());
-
 app.use(function (req, res, next) {
   req.flash = flash;
   req.globalRegistryUrl = configAPP.globlaRegistryUrl;
-  req.globalRegistryPort = configAPP.globlaRegistryPort;
+  //req.globalRegistryPort = configAPP.globlaRegistryPort;
   req.domainRegistryUrl = configAPP.domainRegistryUrl;
   req.proxy = configAPP.proxy;
   req.webRTCUrl = configAPP.webRTCUrl;
   req.title = "Contacts App";
-  req.currentDomain = "https://hello.rethink3.orange-labs.fr/";
+  req.currentDomain = "http://localhost/";
   //req.currentDomain = "https://rethink.tlabscloud.com/";
   next();
 });
@@ -69,12 +75,12 @@ app.use(function (req, res, next) {
 app.use('/', connect);
 app.use('/login', connect);
 app.use('/signup', connect);
+app.use('/logout', connect);
 app.use('/home', home);
 app.use('/profile', home);
 app.use('/admin', home);
 app.use('/users', users);
 app.use('/addDomain', users);
-//app.use('/room', room);
 
 
 // catch 404 and forward to error handler

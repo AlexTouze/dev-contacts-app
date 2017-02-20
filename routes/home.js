@@ -3,7 +3,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', isLoggedIn, function (req, res, next) {
-  res.render('home', { title: req.title, domain: req.currentDomain, user: req.user });
+  res.render('home', { title: req.title, domain: req.currentDomain, user: req.user, gregUrl: req.globalRegistryUrl});
+});
+/* GET home page. */
+router.get('/call', isLoggedIn, function (req, res, next) {
+  res.render('call', { title: req.title, domain: req.currentDomain, user: req.user, gregUrl: req.globalRegistryUrl});
 });
 
 /* GET current domain */
@@ -13,11 +17,11 @@ router.get('/getdomain', function (req, res, next) {
 });
 
 router.get('/profile', isLoggedIn, function (req, res, next) {
-  res.render('profile', { title: req.title, domain: req.currentDomain, user: req.user });
+  res.render('profile', { title: req.title, domain: req.currentDomain, user: req.user, gregUrl: req.globalRegistryUrl });
 });
 
 router.get('/admin', isLoggedIn, function (req, res, next) {
-  res.render('admin', { title: req.title, domain: req.currentDomain, user: req.user });
+  res.render('admin', { title: req.title, domain: req.currentDomain, user: req.user, gregUrl: req.globalRegistryUrl });
 });
 
 

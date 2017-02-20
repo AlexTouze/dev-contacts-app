@@ -158,7 +158,8 @@ passport.use(new JwtStrategy({
                         newUser.jwt.id = jwt_payload.sub;
                         newUser.jwt.token = btoa(JSON.stringify(jwt_payload));
                         newUser.jwt.iss = jwt_payload.sub;
-                        newUser.local.guid = "";
+ 			            newUser.local.guid = "";
+                        newUser.local.email = newUser.jwt.id;
                         newUser.save(function (err) {
                             if (err)
                                 return done(err);

@@ -7,15 +7,21 @@ append styles
     // Custom styles for this template
     link(href='../css/navbar-fixed-top.css', rel='stylesheet')
     link(href='../css/style.css', rel='stylesheet')
-    script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
-    script(src='../javascripts/authConnect.js')
-    script(src='../javascripts/lib/wid_api.js')
+    //script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
 append body
     div.container.text-center
-        h1 Contacts App
-        p Login or Register with:
-        a(class="btn btn-default loginbtn" href="/login") Local Login 
-        a(class="btn btn-default loginbtn" href="/signup") Local Signup
-        a(class="btn btn-default loginbtn" href="#" onclick="authConnect()")
-            img(src="icon64.png") 
-            span Connect
+        div.col-sm-2
+            img(class="logo" src="rethink.png") 
+        div.col-sm-8
+            h1 Contact Management
+      div.container.col-sm-8.col-sm-offset-2.appInfo
+            br
+            br
+            p This application is an example that illustrate the identity concepts of rethink and extends it to the legacy.
+
+            p Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis est eu elementum malesuada. Vestibulum lacus dolor, volutpat vitae leo ac, pellentesque rutrum arcu. Nullam ante turpis, faucibus at malesuada non, pharetra in est. Pellentesque ultricies auctor elementum. Sed pellentesque, elit nec imperdiet rhoncus, dolor velit varius est, quis faucibus massa lorem eu orci. Donec iaculis sit amet urna vel aliquam. Suspendisse varius dui eget odio pretium vehicula. Pellentesque varius, augue gravida fermentum sollicitudin, lectus nibh tempor neque, ut porttitor est ante eu ipsum.
+
+        div.col-sm-4.col-sm-offset-4
+            a(class="btn btn-default loginbtn btn-lg" href="/login")
+                img(src="login-icon.svg") 
+                span Connexion

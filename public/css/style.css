@@ -7,7 +7,9 @@ a {
   color: #00B7FF;
 }
 #rethink {
-  display: none !important;
+	position: fixed !important;
+    height: 50% !important; 
+	background: #555555 !important;
 }
 .modal-body {
   overflow: hidden;
@@ -52,7 +54,7 @@ a {
   }
 }
 .loginbtn {
-  margin: 7px;
+  width: 100%;
 }
 .loginbtn img {
   width: 16px;
@@ -62,4 +64,18 @@ a {
 video {
   max-width: 100%;
   width: 100%;
+}
+.logo {
+  width: 160px;
+}
+.loginContainer {
+  padding-top: 35px;
+}
+.loginInfo {
+  padding: 35px;
+  color: #555555;
+}
+.appInfo {
+  padding-bottom: 5%;
+  padding-top: 5%;
 }

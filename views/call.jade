@@ -1,0 +1,117 @@
+append body
+    nav#mainNav
+            div.hide
+                form#settings.form-horizontal.settings(role="form")
+                    div.darktext.form-group
+                        label.col-sm-1.control-label Stun
+                        div.col-sm-4
+                            input#stun.form-control(value="stun.l.google.com:19302", placeholder="stun")
+                        label.col-sm-1.control-label Turn
+                        div.col-sm-4
+                            input#turn.form-control(value="", size="20", placeholder="turn url")
+                        label use strict
+                            input#strictice(type="checkbox") 
+
+                    div.darktext.form-group
+                        label.col-sm-1.control-label user
+                            div.col-sm-4
+                                input#turn_user.form-control(value="", size="10", placeholder="")
+                        label.col-sm-1.control-label pass
+                            div.col-sm-4 
+                                input#turn_pass.form-control(value="", size="10", type="password")
+
+                    div.darktext.form-group 
+                        div.col-sm-6 
+                        div.col-sm-2 
+                            button#saveConfig.btn.btn-default.btn-sm(type="submit") Save profile
+  section#callSection
+        script.
+            function callHyperty(uid, dom)
+            {
+                if (!RUNTIME)
+                {
+                    // Load the runtime
+                    registerDomain().then(function(result)
+                    {
+                        // if successful load hyperty Connector
+                        loadHypertyConnector().then(function(){
+                            proceedCall(uid, dom);
+                        });
+                        
+                    }).catch(function(err)
+                    {
+                            console.log(err);
+                    });
+                }
+                else
+                {
+                    proceedCall(uid, dom);
+                }
+            }
+        // Begin page content
+    div.main-content.container 
+        div.row 
+        div#content.content.col-sm-12 
+            div#info 
+            div.hyperty-panel 
+            div.send-panel 
+            div.invitation-panel 
+            
+            div#video.row.hide 
+            div.video-holder.col-sm-12 
+                video#remoteVideo.col-sm-5.smallVideo.video.responsive-video(autoplay, poster="img/header.gif")
+                video#localVideo.col-sm-5.fullVideo.my-video.responsive-video(muted, autoplay, poster="img/header.gif")
+            div.col-sm-12
+                div.col-sm-4 
+                    fieldset.form-fieldset 
+                        legend local media
+                        div.form-checkbox-set 
+                            label video
+                                input#local-video.form-checkbox(type="checkbox", value="1", checked) 
+                        
+                        div.form-checkbox-set 
+                            label audio
+                                input#local-audio.form-checkbox(type="checkbox", value="1", checked) 
+                div.col-sm-1 
+                div.col-sm-4          
+                    fieldset.form-fieldset 
+                        legend remote media
+                        div.form-checkbox-set 
+                            label video
+                                input#remote-video.form-checkbox(type="checkbox", value="1", checked) 
+                        
+                        div.form-checkbox-set 
+                            label audio
+                                input#remote-audio.form-checkbox(type="checkbox", value="1", checked)
+                        
+                        button#hangup.btn.btn-default.btn-sm hangup
+ 
+    // Modal Structure
+    div.modal.hide.fade#AcceptCall 
+        div.modal-dialog.modal-lg.modal-content 
+            h4 Call Incoming From
+            div.information.row#modalinfo 
+                div.valign-wrapper 
+                    div.col-lg-4 
+                        img#avatar.col-lg-12.circle(src="" alt="") 
+                    
+                    div.col-lg-8 
+                        div.col-lg-12 
+                            span.text-right Name:
+                            span.black-text#calleeName
+                        
+                        div.col-lg-12 
+                            span.text-right Email:
+                            span.black-text#calleeUsername
+                        
+                        div.col-lg-12 
+                            span.text-right Locale:
+                            span.black-text#calleLocale
+                        
+                        div.col-lg-12 
+                            span.text-right UserURL:
+                            span.black-text#calleUserURL
+                        
+         div.modal-footer 
+            button#btn-reject.modal-action.modal-close.waves-effect.waves-green.btn-reject.btn(type="button", data-dismiss="modal") Reject
+            button#btn-accept.modal-action.modal-close.waves-effect.waves-green.btn-accept.btn(type="button", data-dismiss="modal") Accept

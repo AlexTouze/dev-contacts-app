@@ -19,13 +19,13 @@ var UserLocal = require('../models/userLocal');
 router.get('/getcontactlists', function (req, res, next) {
 
   var loggedUser = req.user.local.guid;
-  UserApp.find({}, function (err, users) {
+  UserApp.find({"contactlist.associatedUser":loggedUser}, function (err, users) {
     var userMap = {};
 
     users.forEach(function (user) {
-      if (loggedUser === user.contactlist.associatedUser) {
+//      if (loggedUser === user.contactlist.associatedUser) {
         userMap[user._id] = user;
-      }
+//      }
     });
     res.json(userMap);
   });
@@ -66,15 +66,16 @@ router.post('/addcontact', function (req, res, next) {
   var currentUser = req.body;
 
   var newUser = new UserApp();
-  newUser.contactlist.mail = currentUser.mail;
+//  newUser.contactlist.mail = currentUser.mail;
   newUser.contactlist.firstname = currentUser.firstname;
   newUser.contactlist.lastname = currentUser.lastname;
-  newUser.contactlist.age = currentUser.age;
+  newUser.contactlist.info = currentUser.information;
+//  newUser.contactlist.age = currentUser.age;
   newUser.contactlist.guid = currentUser.guid;
   newUser.contactlist.associatedUser = req.user.local.guid;
 
   if (currentUser.guid != "") {
-    var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + currentUser.guid;
+    var urlRequest = req.globalRegistryUrl + '/guid/' + currentUser.guid;
     request(
       {
         method: 'GET',
@@ -95,7 +96,9 @@ router.post('/addcontact', function (req, res, next) {
           });
         } else {
           var dht = response.body;
-          newUser.contactlist.uids = JSON.stringify(JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data)).userIDs);
+          var record = JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data));
+
+          newUser.contactlist.uids = JSON.stringify(buildUidArray(record));
           newUser.save(function (err) {
             if (err) {
               res.send({ msg: err });
@@ -120,6 +123,53 @@ router.post('/addcontact', function (req, res, next) {
   }
 });
 
+
+/*
+ * POST to adduser.
+ */
+router.post('/updatecontact/:id', function (req, res, next) {
+  var contactGUID = req.params.id;
+  UserApp.findOne({"contactlist.guid":contactGUID, "contactlist.associatedUser":req.user.local.guid}, function (err, currentUser) {
+ //   users.forEach(function (currentUser) {
+      if (currentUser.contactlist.guid != "") {
+        var urlRequest = req.globalRegistryUrl + '/guid/' + currentUser.contactlist.guid;
+        request(
+          {
+            method: 'GET',
+            proxy: req.proxy,
+            uri: urlRequest,
+          },
+          function (error, response, body) {
+            if (response.statusCode != 200) {
+              console.log('error ' + response.statusCode);
+              console.log(JSON.stringify(req.body));
+              currentUser.save(function (err) {
+                if (err) {
+                  res.send({ msg: err });
+                }
+                else {
+                  res.send({ msg: '' });
+                }
+              });
+            } else {
+              var dht = response.body;
+              var record = JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data));
+              currentUser.contactlist.uids = JSON.stringify(buildUidArray(record));              
+              currentUser.save(function (err) {
+                if (err) {
+                  res.send({ msg: err });
+                }
+                else {
+                  res.send({ msg: '' });
+                }
+              });
+            }
+          })
+        }
+    //});
+  });
+});
+
 /*
  * DELETE to deleteuser.
  */
@@ -134,18 +184,22 @@ router.get('/addDomain', function (req, res, next) {
   res.render('addDomain');
 });
 
+
 router.post('/addContactToGlobal', function (req, res, next) {
   var loggedUser = req.user.local.guid;
-
+	console.log(req.user);
   if (loggedUser === '') {
+    console.log("loggedUser",loggedUser );
 
     var currentUser = req.user;
     initRecord();
-
-    _globalRegistryRecord.userIDs.push({ "uid": req.body.uid, "domain": req.body.domain });
+    var idpDomain = req.body.idpDomain;
+    var userId = "user://" + normalizeDomain(idpDomain) + "/" + req.body.uid
+    var serviceDomain = normalizeDomain(req.body.serviceDomain);
+    _globalRegistryRecord.userIDs.push({ "uid": userId, "domain":  serviceDomain});
     _globalRegistryRecord.defaults = ({ "voice": "a", "chat": "b", "video": "c" })
     var jwt = _signGlobalRegistryRecord();
-    var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + _globalRegistryRecord.guid;
+    var urlRequest = req.globalRegistryUrl + '/guid/' + _globalRegistryRecord.guid;
 
     request({
       proxy: req.proxy,
@@ -181,16 +235,99 @@ router.post('/addContactToGlobal', function (req, res, next) {
   }
 });
 
-
-router.get('/globalcontact/:guid', function (req, res, next) {
-  var guid = req.params.guid;
-  getGlobalContact(guid, req, res, next);
+router.post('/removeContactFromGlobal', function (req, res, next) {
+  var loggedUser = req.user.local.guid;
+  updateGlobalRegistryRemoveRecord(loggedUser, req, res, next);
 });
 
+/**
+ * This is to register a new GUID
+ */
+router.put('/globalcontact/', function (req, res, next) {
+  var guid = req.params.guid;
+  var loggedUser = req.user.local.guid;
+ initRecord();
+  _globalRegistryRecord
+  var currentUser = req.user;
+
+
+    _globalRegistryRecord.legacyIDs.push({ "id": req.user.local.email, "category": req.currentDomain });
+    _globalRegistryRecord.defaults = ({ "voice": "a", "chat": "b", "video": "c" })
+    var jwt = _signGlobalRegistryRecord();
+    var urlRequest = req.globalRegistryUrl  + '/guid/' + _globalRegistryRecord.guid;
+
+    request({
+      proxy: req.proxy,
+      method: 'PUT',
+      uri: urlRequest,
+      headers: {
+        'Content-Length': jwt.length,
+        'Content-Type': 'application/json'
+      },
+      body: jwt
+    }, function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log(JSON.stringify(response));
+        res.send({ msg: error });
+      } else {
+        console.log(JSON.stringify(response));
+        var guid = response.request.uri.path.replace('/guid/', '');
+        delete currentUser._id;
+        UserLocal.findById(req.user._id, function (err, user) {
+          if (err) throw err;
+          user.local.guid = guid;
+          //user.local.prvKey = _prvKey;
+          user.local.privateKey = privateKey;
+          console.log(user);
+          user.save(console.log);
+          res.send({ msg: '' });
+        });
+      }
+    });
+});
+
+/*
+* This is to merge an account to an already existing GUID
+*/
+router.put('/globalcontact/:guid', function (req, res, next) {
+  var currentUser = req.user;
+  var guid = req.params.guid;
+  // Verify if the GUID exists
+  var urlRequest = req.globalRegistryUrl + '/guid/' + guid;
+  request(
+     {
+        method: 'GET',
+        proxy: req.proxy,
+        uri: urlRequest,
+     },
+     function (error, response, body) {
+        // GUID not found
+        if (response.statusCode != 200) {
+          console.log('error ' + response.statusCode);
+          console.log(JSON.stringify(req.body));
+          res.send({ msg: 'GUID Not found error ' + response.statusCode });
+        } else {  
+          // GUID Found, save it
+          currentUser.local.guid = guid;
+          currentUser.local.privateKey = req.body.key;
+          currentUser.save(function (err) {
+            if (err) {
+              res.send({ msg: err });
+            }
+            else {
+              res.send({ msg: '' });
+            }
+          });
+        }
+    });
+});
+
+/*
 router.get('/getUserInfo', function (req, res, next) {
   var guid = req.user.local.guid;
   getGlobalContact(guid, req, res, next);
 });
+*/
 
 router.get('/getRoom/:id', function (req, res, next) {
   var urlRequest = req.domainRegistryUrl + req.params.id;
@@ -205,7 +342,8 @@ router.get('/getRoom/:id', function (req, res, next) {
       if (response.statusCode != 200) {
         console.log('error ' + response.statusCode);
         console.log(JSON.stringify(req.body));
-      }
+           res.json({ url: '' });
+     }
       else {
         if (response.body != '{}') {
           var roomList = JSON.parse(response.body);
@@ -225,9 +363,22 @@ router.get('/getRoom/:id', function (req, res, next) {
     });
 });
 
+function buildUidArray(record)
+{
+      if (!record.legacyIDs)
+      {
+        record.legacyIDs = [];
+      }
+      if (!record.userIDs)
+      {
+        record.userIDs = [];
+      }
+      return record.userIDs.concat(record.legacyIDs);
+}
 
+/* TODO suppress this
 function getGlobalContact(guid, req, res, next) {
-  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + guid;
+  var urlRequest = req.globalRegistryUrl  + '/guid/' + guid;
   request(
     {
       method: 'GET',
@@ -240,15 +391,22 @@ function getGlobalContact(guid, req, res, next) {
         console.log(JSON.stringify(req.body))
       } else {
         var dht = response.body;
-        res.send(JSON.parse(base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data)).userIDs)
+        var result = base64url.decode(JSON.parse(base64url.decode((JSON.parse(dht).Value).split(".")[1])).data);
+        var record = JSON.parse(result);
+         res.send(buildUidArray(record));
       }
     }
   )
 }
-
+*/
 
 function updateGlobalRegistryRecord(guid, req, res, next) {
-  var urlRequest = req.globalRegistryUrl + ':' + req.globalRegistryPort + '/guid/' + guid;
+  var urlRequest = req.globalRegistryUrl  + '/guid/' + guid;
+  var isReTHINK = false;
+  if (typeof req.body.reTHINKCheck != 'undefined' && req.body.reTHINKCheck == 'on')
+  {
+      isReTHINK = true;
+  }
   request(
     {
       method: 'GET',
@@ -264,33 +422,125 @@ function updateGlobalRegistryRecord(guid, req, res, next) {
         var jwt = (JSON.parse(response.body).Value).split(".");
         var jwtHeader = jwt[0];
         var updateRecord = JSON.parse(base64url.decode(JSON.parse(base64url.decode(jwt[1])).data));
-        updateRecord.userIDs.push({ "uid": req.body.uid, "domain": req.body.domain });
-        updateRecord.lastUpdate = new Date().toISOString();
-        var signJWT = signUpdateRecord(jwtHeader, updateRecord, req.user.local.privateKey);
-        request({
-          proxy: req.proxy,
-          method: 'PUT',
-          uri: urlRequest,
-          headers: {
-            'Content-Length': signJWT.length,
-            'Content-Type': 'application/json'
-          },
-          body: signJWT
-        }, function (error, response, body) {
-          if (response.statusCode != 200) {
-            console.log(JSON.stringify(response));
-            //res.send({ msg: error });
-          } else {
-            console.log(JSON.stringify(response));
 
-            res.redirect('/home/profile');
+        var userId = req.body.uid;
+        var idpDomain = req.body.idpDomain;
+        var serviceDomain = normalizeDomain(req.body.serviceDomain);
+        if (isReTHINK)
+        {
+          if (!updateRecord.userIDs)
+          {
+            updateRecord.userIDs = [];
           }
-        });
-
+          userId = "user://" + normalizeDomain(idpDomain) + "/" + req.body.uid;
+          updateRecord.userIDs.push({ "uid": userId, "domain": serviceDomain });
+        }
+        else {
+          if (!updateRecord.legacyIDs)
+          {
+            updateRecord.legacyIDs = [];
+          }
+          updateRecord.legacyIDs.push({ "id": userId, "category": serviceDomain});
+        }
+  
+          saveRecord(urlRequest, req, res, jwtHeader, updateRecord, req.user.local.privateKey);
       }
     }
   )
 
+}
+
+
+function updateGlobalRegistryRemoveRecord(guid, req, res, next) {
+  var urlRequest = req.globalRegistryUrl  + '/guid/' + guid;
+  request(
+    {
+      method: 'GET',
+      proxy: req.proxy,
+      uri: urlRequest,
+    },
+    function (error, response, body) {
+      if (response.statusCode != 200) {
+        console.log('error ' + response.statusCode)
+        console.log(JSON.stringify(req.body))
+      }
+      else {
+        var jwt = (JSON.parse(response.body).Value).split(".");
+        var jwtHeader = jwt[0];
+        var updateRecord = JSON.parse(base64url.decode(JSON.parse(base64url.decode(jwt[1])).data));
+
+        var userId = req.body.id;
+        var serviceDomain = req.body.domain;
+        var removed = false;
+        // look for 
+        if (updateRecord.userIDs)
+        {
+          var arrayResult = updateRecord.userIDs.filter(function(item){
+            return ((item.uid != userId) || (item.domain != serviceDomain));
+          });
+          removed = (arrayResult.length <  (updateRecord.userIDs.length));
+          updateRecord.userIDs = arrayResult;
+        }
+        if (!removed) {
+            if (updateRecord.legacyIDs)
+            {
+              var arrayResult2 = updateRecord.legacyIDs.filter(function(item){
+                  return ((item.id != userId) || item.category != serviceDomain);
+                });
+                removed = (arrayResult2.length <  (updateRecord.legacyIDs.length));
+                updateRecord.legacyIDs = arrayResult2;
+            }
+         }
+         saveRecord(urlRequest, req,  res, jwtHeader, updateRecord, req.user.local.privateKey);
+      }
+    }
+  )
+
+}
+
+function saveRecord(urlRequest, req, res, jwtHeader, updateRecord, privateKey)
+{
+      updateRecord.lastUpdate = new Date().toISOString();
+      var signJWT = signUpdateRecord(jwtHeader, updateRecord, privateKey);
+      console.log("------------");
+      console.log(updateRecord);
+      console.log("------------");
+      request({
+        proxy: req.proxy,
+        method: 'PUT',
+        uri: urlRequest,
+        headers: {
+          'Content-Length': signJWT.length,
+          'Content-Type': 'application/json'
+        },
+        body: signJWT
+      }, function (error, response, body) {
+        if (response.statusCode != 200) {
+          console.log(JSON.stringify(response));
+          //res.send({ msg: error });
+        } else {
+          console.log(JSON.stringify(response));
+
+          res.redirect('/home/profile');
+        }
+      });
+}
+
+function normalizeDomain(aDomain)
+{
+  // Strip scheme
+  var index = aDomain.indexOf("://");
+  var retValue = aDomain;
+  if (index > -1)
+  {
+    retValue = aDomain.slice(index + 3);
+  }
+  index = retValue.indexOf("/");
+  if (index > -1)
+  {
+    retValue = retValue.slice(0, index);
+  }
+  return retValue;
 }
 
 /********** JWT ********* */
@@ -302,6 +552,7 @@ var Record = function () {
   this.guid = "";
   this.salt = "";
   this.userIDs = [];
+  this.legacyIDs = [];
   this.lastUpdate = "";
   this.timeout = "";
   this.publicKey = "";

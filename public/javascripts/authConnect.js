@@ -3,4 +3,5 @@ function authConnect() {
         .then(jwt => {
             window.location.href = "/auth/connect?jwt=" + jwt
         })
+    return false;
 }
